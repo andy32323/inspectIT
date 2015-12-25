@@ -4,25 +4,25 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryAndAgentProvider;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider;
 import info.novatec.inspectit.rcp.repository.CmrRepositoryDefinition;
-import info.novatec.inspectit.rcp.repository.CmrRepositoryDefinition.LoginStatus;
+import info.novatec.inspectit.rcp.wizard.CmrAdministrationWizard;
 
 /**
- * Handler for CMR Logout.
+ * Handler for managing the users on the CMR.
  * 
- * @author Clemens Geibel
+ * @author Lucca Hellriegel
  *
  */
 
-public class CmrLogoutHandler extends AbstractHandler implements IHandler {
-
+public class CmrAdministrationHandler extends AbstractHandler implements IHandler { 
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -41,13 +41,9 @@ public class CmrLogoutHandler extends AbstractHandler implements IHandler {
 		}
 
 		if (null != cmrRepositoryDefinition) {
-			cmrRepositoryDefinition.refreshLoginStatus();
-			if (LoginStatus.LOGGEDIN == cmrRepositoryDefinition.getLoginStatus()) {
-				cmrRepositoryDefinition.logout();
-				MessageDialog.openError(null, "Warning", "You logged out successfully.");
-			} else {
-				MessageDialog.openError(null, "Logout failed", "You are not logged in.");
-			}
+			CmrAdministrationWizard cmrAdministrationWizard = new CmrAdministrationWizard(cmrRepositoryDefinition);
+			WizardDialog wizardDialog = new WizardDialog(HandlerUtil.getActiveShell(event), cmrAdministrationWizard);
+			wizardDialog.open();
 		} else {
 			throw new ExecutionException("No CMR");
 		}
