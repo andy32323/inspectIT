@@ -73,7 +73,7 @@ public class Administration {
 	 * @param email Email of the user.
 	 */
 	public void deleteUser(String email) {
-		User user = userDao.load(email);
+		User user = userDao.findByEmail(email);
 		userDao.delete(user);
 	}
 	
