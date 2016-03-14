@@ -1,5 +1,7 @@
 package info.novatec.inspectit.storage.serializer.impl;
 
+import info.novatec.inspectit.cmr.model.JmxDefinitionDataIdent;
+import info.novatec.inspectit.cmr.model.JmxSensorTypeIdent;
 import info.novatec.inspectit.cmr.model.MethodIdent;
 import info.novatec.inspectit.cmr.model.MethodIdentToSensorType;
 import info.novatec.inspectit.cmr.model.MethodSensorTypeIdent;
@@ -26,9 +28,12 @@ import info.novatec.inspectit.communication.data.CompilationInformationData;
 import info.novatec.inspectit.communication.data.CpuInformationData;
 import info.novatec.inspectit.communication.data.DatabaseAggregatedTimerData;
 import info.novatec.inspectit.communication.data.ExceptionSensorData;
+import info.novatec.inspectit.communication.data.HttpInfo;
 import info.novatec.inspectit.communication.data.HttpTimerData;
 import info.novatec.inspectit.communication.data.InvocationAwareData.MutableInt;
 import info.novatec.inspectit.communication.data.InvocationSequenceData;
+import info.novatec.inspectit.communication.data.JmxSensorValueData;
+import info.novatec.inspectit.communication.data.LoggingData;
 import info.novatec.inspectit.communication.data.MemoryInformationData;
 import info.novatec.inspectit.communication.data.ParameterContentData;
 import info.novatec.inspectit.communication.data.ParameterContentType;
@@ -48,6 +53,7 @@ import info.novatec.inspectit.exception.BusinessException;
 import info.novatec.inspectit.exception.RemoteException;
 import info.novatec.inspectit.exception.TechnicalException;
 import info.novatec.inspectit.exception.enumeration.AgentManagementErrorCodeEnum;
+import info.novatec.inspectit.exception.enumeration.ConfigurationInterfaceErrorCodeEnum;
 import info.novatec.inspectit.exception.enumeration.StorageErrorCodeEnum;
 import info.novatec.inspectit.storage.serializer.HibernateAwareClassResolver;
 import info.novatec.inspectit.storage.serializer.IKryoProvider;
@@ -104,13 +110,15 @@ import de.javakaffee.kryoserializers.SynchronizedCollectionsSerializer;
 import de.javakaffee.kryoserializers.UnmodifiableCollectionsSerializer;
 
 /**
- * Implementation of the {@link ISerializer} that uses Kryo library for serializing the objects. <br>
+ * Implementation of the {@link ISerializer} that uses Kryo library for
+ * serializing the objects. <br>
  * <br>
- * <b>This class is not thread safe and should be used with special attention. The class can be used
- * only by one thread while the serialization/de-serialization process lasts.</b>
- * 
+ * <b>This class is not thread safe and should be used with special attention.
+ * The class can be used only by one thread while the
+ * serialization/de-serialization process lasts.</b>
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -129,13 +137,15 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 	private KryoNetNetwork kryoNetNetwork;
 
 	/**
-	 * Schema manager that holds all schemas for the {@link DefaultData} objects to be serialized.
+	 * Schema manager that holds all schemas for the {@link DefaultData} objects
+	 * to be serialized.
 	 */
 	@Autowired
 	private ClassSchemaManager schemaManager;
 
 	/**
-	 * {@link IHibernateUtil} if needed for Hibernate persistent collections/maps solving.
+	 * {@link IHibernateUtil} if needed for Hibernate persistent
+	 * collections/maps solving.
 	 */
 	@Autowired(required = false)
 	IHibernateUtil hibernateUtil;
@@ -144,7 +154,8 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 	 * Initialize {@link Kryo} properties.
 	 */
 	protected void initKryo() {
-		// if hibernateUtil is provided, we create special kind of class resolver
+		// if hibernateUtil is provided, we create special kind of class
+		// resolver
 		ClassResolver classResolver;
 		if (null != hibernateUtil) {
 			classResolver = new HibernateAwareClassResolver(hibernateUtil);
@@ -152,7 +163,8 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 			classResolver = new DefaultClassResolver();
 		}
 
-		// we disable references for DefaultData objects because they are not needed
+		// we disable references for DefaultData objects because they are not
+		// needed
 		// invocations will be handled manually
 		ReferenceResolver referenceResolver = new MapReferenceResolver() {
 			@SuppressWarnings("rawtypes")
@@ -172,25 +184,30 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 
 	/**
 	 * Registers all necessary classes to the {@link Kryo} instance;
-	 * 
+	 *
 	 * ATTENTION!
-	 * 
-	 * Please do not change the order of the registered classes. If new classes need to be
-	 * registered, please add this registration at the end. Otherwise the old data will not be able
-	 * to be de-serialized. If some class is not need to be register any more, do not remove the
-	 * registration. If the class is not available any more, add arbitrary class to its position, so
-	 * that the order can be maintained. Do not add unnecessary classes to the registration list.
-	 * 
-	 * NOTE: By default, all primitives (including wrappers) and java.lang.String are registered.
-	 * Any other class, including JDK classes like ArrayList and even arrays such as String[] or
-	 * int[] must be registered.
-	 * 
-	 * NOTE: If it is known up front what classes need to be serialized, registering the classes is
-	 * ideal. However, in some cases the classes to serialize are not known until it is time to
-	 * perform the serialization. When setRegistrationOptional is true, registered classes are still
-	 * written as an integer. However, unregistered classes are written as a String, using the name
-	 * of the class. This is much less efficient, but can't always be avoided.
-	 * 
+	 *
+	 * Please do not change the order of the registered classes. If new classes
+	 * need to be registered, please add this registration at the end. Otherwise
+	 * the old data will not be able to be de-serialized. If some class is not
+	 * need to be register any more, do not remove the registration. If the
+	 * class is not available any more, add arbitrary class to its position, so
+	 * that the order can be maintained. Do not add unnecessary classes to the
+	 * registration list.
+	 *
+	 * NOTE: By default, all primitives (including wrappers) and
+	 * java.lang.String are registered. Any other class, including JDK classes
+	 * like ArrayList and even arrays such as String[] or int[] must be
+	 * registered.
+	 *
+	 * NOTE: If it is known up front what classes need to be serialized,
+	 * registering the classes is ideal. However, in some cases the classes to
+	 * serialize are not known until it is time to perform the serialization.
+	 * When setRegistrationOptional is true, registered classes are still
+	 * written as an integer. However, unregistered classes are written as a
+	 * String, using the name of the class. This is much less efficient, but
+	 * can't always be avoided.
+	 *
 	 * @param kryo
 	 *            Kryo that needs to be prepared.
 	 */
@@ -208,51 +225,78 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 		/** Arrays */
 		kryo.register(long[].class, new LongArraySerializer());
 		/** inspectIT model classes */
-		kryo.register(PlatformIdent.class, new CustomCompatibleFieldSerializer<PlatformIdent>(kryo, PlatformIdent.class, schemaManager));
-		kryo.register(MethodIdent.class, new CustomCompatibleFieldSerializer<MethodIdent>(kryo, MethodIdent.class, schemaManager));
-		kryo.register(SensorTypeIdent.class, new CustomCompatibleFieldSerializer<SensorTypeIdent>(kryo, SensorTypeIdent.class, schemaManager));
-		kryo.register(MethodSensorTypeIdent.class, new CustomCompatibleFieldSerializer<MethodSensorTypeIdent>(kryo, MethodSensorTypeIdent.class, schemaManager));
-		kryo.register(PlatformSensorTypeIdent.class, new CustomCompatibleFieldSerializer<PlatformSensorTypeIdent>(kryo, PlatformSensorTypeIdent.class, schemaManager, true));
+		kryo.register(PlatformIdent.class,
+				new CustomCompatibleFieldSerializer<PlatformIdent>(kryo, PlatformIdent.class, schemaManager));
+		kryo.register(MethodIdent.class,
+				new CustomCompatibleFieldSerializer<MethodIdent>(kryo, MethodIdent.class, schemaManager));
+		kryo.register(SensorTypeIdent.class,
+				new CustomCompatibleFieldSerializer<SensorTypeIdent>(kryo, SensorTypeIdent.class, schemaManager));
+		kryo.register(MethodSensorTypeIdent.class, new CustomCompatibleFieldSerializer<MethodSensorTypeIdent>(kryo,
+				MethodSensorTypeIdent.class, schemaManager));
+		kryo.register(PlatformSensorTypeIdent.class, new CustomCompatibleFieldSerializer<PlatformSensorTypeIdent>(kryo,
+				PlatformSensorTypeIdent.class, schemaManager, true));
 		/** Common data classes */
 		kryo.register(MutableInt.class, new FieldSerializer<MutableInt>(kryo, MutableInt.class));
-		kryo.register(InvocationSequenceData.class, new InvocationSequenceCustomCompatibleFieldSerializer(kryo, InvocationSequenceData.class, schemaManager));
+		kryo.register(InvocationSequenceData.class, new InvocationSequenceCustomCompatibleFieldSerializer(kryo,
+				InvocationSequenceData.class, schemaManager));
 		// TODO Check if we want for these
-		kryo.register(TimerData.class, new InvocationAwareDataSerializer<TimerData>(kryo, TimerData.class, schemaManager));
-		kryo.register(HttpTimerData.class, new InvocationAwareDataSerializer<HttpTimerData>(kryo, HttpTimerData.class, schemaManager));
-		kryo.register(SqlStatementData.class, new InvocationAwareDataSerializer<SqlStatementData>(kryo, SqlStatementData.class, schemaManager));
-		kryo.register(ExceptionSensorData.class, new InvocationAwareDataSerializer<ExceptionSensorData>(kryo, ExceptionSensorData.class, schemaManager));
+		kryo.register(TimerData.class,
+				new InvocationAwareDataSerializer<TimerData>(kryo, TimerData.class, schemaManager));
+		kryo.register(HttpTimerData.class,
+				new InvocationAwareDataSerializer<HttpTimerData>(kryo, HttpTimerData.class, schemaManager));
+		kryo.register(SqlStatementData.class,
+				new InvocationAwareDataSerializer<SqlStatementData>(kryo, SqlStatementData.class, schemaManager));
+		kryo.register(ExceptionSensorData.class,
+				new InvocationAwareDataSerializer<ExceptionSensorData>(kryo, ExceptionSensorData.class, schemaManager));
 		kryo.register(ExceptionEvent.class, new EnumSerializer(ExceptionEvent.class));
-		kryo.register(ParameterContentData.class, new CustomCompatibleFieldSerializer<ParameterContentData>(kryo, ParameterContentData.class, schemaManager));
-		kryo.register(MemoryInformationData.class, new CustomCompatibleFieldSerializer<MemoryInformationData>(kryo, MemoryInformationData.class, schemaManager));
-		kryo.register(CpuInformationData.class, new CustomCompatibleFieldSerializer<CpuInformationData>(kryo, CpuInformationData.class, schemaManager));
-		kryo.register(SystemInformationData.class, new CustomCompatibleFieldSerializer<SystemInformationData>(kryo, SystemInformationData.class, schemaManager));
-		kryo.register(VmArgumentData.class, new CustomCompatibleFieldSerializer<VmArgumentData>(kryo, VmArgumentData.class, schemaManager));
-		kryo.register(ThreadInformationData.class, new CustomCompatibleFieldSerializer<ThreadInformationData>(kryo, ThreadInformationData.class, schemaManager));
-		kryo.register(RuntimeInformationData.class, new CustomCompatibleFieldSerializer<RuntimeInformationData>(kryo, RuntimeInformationData.class, schemaManager));
-		kryo.register(CompilationInformationData.class, new CustomCompatibleFieldSerializer<CompilationInformationData>(kryo, CompilationInformationData.class, schemaManager));
-		kryo.register(ClassLoadingInformationData.class, new CustomCompatibleFieldSerializer<ClassLoadingInformationData>(kryo, ClassLoadingInformationData.class, schemaManager));
+		kryo.register(ParameterContentData.class, new CustomCompatibleFieldSerializer<ParameterContentData>(kryo,
+				ParameterContentData.class, schemaManager));
+		kryo.register(MemoryInformationData.class, new CustomCompatibleFieldSerializer<MemoryInformationData>(kryo,
+				MemoryInformationData.class, schemaManager));
+		kryo.register(CpuInformationData.class,
+				new CustomCompatibleFieldSerializer<CpuInformationData>(kryo, CpuInformationData.class, schemaManager));
+		kryo.register(SystemInformationData.class, new CustomCompatibleFieldSerializer<SystemInformationData>(kryo,
+				SystemInformationData.class, schemaManager));
+		kryo.register(VmArgumentData.class,
+				new CustomCompatibleFieldSerializer<VmArgumentData>(kryo, VmArgumentData.class, schemaManager));
+		kryo.register(ThreadInformationData.class, new CustomCompatibleFieldSerializer<ThreadInformationData>(kryo,
+				ThreadInformationData.class, schemaManager));
+		kryo.register(RuntimeInformationData.class, new CustomCompatibleFieldSerializer<RuntimeInformationData>(kryo,
+				RuntimeInformationData.class, schemaManager));
+		kryo.register(CompilationInformationData.class, new CustomCompatibleFieldSerializer<CompilationInformationData>(
+				kryo, CompilationInformationData.class, schemaManager));
+		kryo.register(ClassLoadingInformationData.class,
+				new CustomCompatibleFieldSerializer<ClassLoadingInformationData>(kryo,
+						ClassLoadingInformationData.class, schemaManager));
 		kryo.register(ParameterContentType.class, new EnumSerializer(ParameterContentType.class));
 
 		// aggregation classes
-		kryo.register(AggregatedExceptionSensorData.class, new InvocationAwareDataSerializer<AggregatedExceptionSensorData>(kryo, AggregatedExceptionSensorData.class, schemaManager));
-		kryo.register(DatabaseAggregatedTimerData.class, new InvocationAwareDataSerializer<DatabaseAggregatedTimerData>(kryo, DatabaseAggregatedTimerData.class, schemaManager, true));
+		kryo.register(AggregatedExceptionSensorData.class,
+				new InvocationAwareDataSerializer<AggregatedExceptionSensorData>(kryo,
+						AggregatedExceptionSensorData.class, schemaManager));
+		kryo.register(DatabaseAggregatedTimerData.class, new InvocationAwareDataSerializer<DatabaseAggregatedTimerData>(
+				kryo, DatabaseAggregatedTimerData.class, schemaManager, true));
 
 		// classes needed for the HTTP calls from the UI
 		kryo.register(RemoteInvocation.class, new FieldSerializer<RemoteInvocation>(kryo, RemoteInvocation.class));
-		kryo.register(RemoteInvocationResult.class, new FieldSerializer<RemoteInvocationResult>(kryo, RemoteInvocationResult.class) {
-			@Override
-			protected RemoteInvocationResult create(Kryo kryo, Input input, Class<RemoteInvocationResult> type) {
-				return new RemoteInvocationResult(null);
-			}
-		});
+		kryo.register(RemoteInvocationResult.class,
+				new FieldSerializer<RemoteInvocationResult>(kryo, RemoteInvocationResult.class) {
+					@Override
+					protected RemoteInvocationResult create(Kryo kryo, Input input,
+							Class<RemoteInvocationResult> type) {
+						return new RemoteInvocationResult(null);
+					}
+				});
 
 		// data classes between CMR and UI
-		// this classes can be registered with FieldSerializer since they are not saved to disk
+		// this classes can be registered with FieldSerializer since they are
+		// not saved to disk
 		kryo.register(CmrStatusData.class, new FieldSerializer<CmrStatusData>(kryo, CmrStatusData.class));
 		kryo.register(AgentStatusData.class, new FieldSerializer<AgentStatusData>(kryo, AgentStatusData.class));
 		kryo.register(AgentConnection.class, new EnumSerializer(AgentConnection.class));
 
-		// INSPECTIT-849 - Hibernate uses Arrays.asList which does not have no-arg constructor
+		// INSPECTIT-849 - Hibernate uses Arrays.asList which does not have
+		// no-arg constructor
 		kryo.register(Arrays.asList().getClass(), new CollectionSerializer() {
 			@Override
 			@SuppressWarnings("rawtypes")
@@ -262,12 +306,16 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 		});
 
 		// INSPECTIT-846
-		kryo.register(AggregatedHttpTimerData.class, new InvocationAwareDataSerializer<AggregatedHttpTimerData>(kryo, AggregatedHttpTimerData.class, schemaManager));
-		kryo.register(AggregatedSqlStatementData.class, new InvocationAwareDataSerializer<AggregatedSqlStatementData>(kryo, AggregatedSqlStatementData.class, schemaManager));
-		kryo.register(AggregatedTimerData.class, new InvocationAwareDataSerializer<AggregatedTimerData>(kryo, AggregatedTimerData.class, schemaManager));
+		kryo.register(AggregatedHttpTimerData.class, new InvocationAwareDataSerializer<AggregatedHttpTimerData>(kryo,
+				AggregatedHttpTimerData.class, schemaManager));
+		kryo.register(AggregatedSqlStatementData.class, new InvocationAwareDataSerializer<AggregatedSqlStatementData>(
+				kryo, AggregatedSqlStatementData.class, schemaManager));
+		kryo.register(AggregatedTimerData.class,
+				new InvocationAwareDataSerializer<AggregatedTimerData>(kryo, AggregatedTimerData.class, schemaManager));
 
 		// added with INSPECTIT-853
-		kryo.register(MethodIdentToSensorType.class, new CustomCompatibleFieldSerializer<MethodIdentToSensorType>(kryo, MethodIdentToSensorType.class, schemaManager));
+		kryo.register(MethodIdentToSensorType.class, new CustomCompatibleFieldSerializer<MethodIdentToSensorType>(kryo,
+				MethodIdentToSensorType.class, schemaManager));
 
 		// added with INSPECTIT-912
 		UnmodifiableCollectionsSerializer.registerSerializers(kryo);
@@ -277,17 +325,22 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 		// added with INSPECTIT-887
 		kryo.register(DefaultDataComparatorEnum.class, new EnumSerializer(DefaultDataComparatorEnum.class));
 		kryo.register(MethodSensorDataComparatorEnum.class, new EnumSerializer(MethodSensorDataComparatorEnum.class));
-		kryo.register(InvocationAwareDataComparatorEnum.class, new EnumSerializer(InvocationAwareDataComparatorEnum.class));
+		kryo.register(InvocationAwareDataComparatorEnum.class,
+				new EnumSerializer(InvocationAwareDataComparatorEnum.class));
 		kryo.register(TimerDataComparatorEnum.class, new EnumSerializer(TimerDataComparatorEnum.class));
 		kryo.register(HttpTimerDataComparatorEnum.class, new EnumSerializer(HttpTimerDataComparatorEnum.class));
 		kryo.register(SqlStatementDataComparatorEnum.class, new EnumSerializer(SqlStatementDataComparatorEnum.class));
-		kryo.register(ExceptionSensorDataComparatorEnum.class, new EnumSerializer(ExceptionSensorDataComparatorEnum.class));
-		kryo.register(AggregatedExceptionSensorDataComparatorEnum.class, new EnumSerializer(AggregatedExceptionSensorDataComparatorEnum.class));
-		kryo.register(InvocationAwareDataComparatorEnum.class, new EnumSerializer(InvocationAwareDataComparatorEnum.class));
+		kryo.register(ExceptionSensorDataComparatorEnum.class,
+				new EnumSerializer(ExceptionSensorDataComparatorEnum.class));
+		kryo.register(AggregatedExceptionSensorDataComparatorEnum.class,
+				new EnumSerializer(AggregatedExceptionSensorDataComparatorEnum.class));
+		kryo.register(InvocationAwareDataComparatorEnum.class,
+				new EnumSerializer(InvocationAwareDataComparatorEnum.class));
 		kryo.register(ResultComparator.class, new FieldSerializer<ResultComparator<?>>(kryo, ResultComparator.class));
 
 		// added with INSPECTIT-950
-		kryo.register(TimeFrame.class, new CustomCompatibleFieldSerializer<TimeFrame>(kryo, TimeFrame.class, schemaManager));
+		kryo.register(TimeFrame.class,
+				new CustomCompatibleFieldSerializer<TimeFrame>(kryo, TimeFrame.class, schemaManager));
 
 		// added with INSPECTIT-480
 		// needed for KryoNet
@@ -295,17 +348,40 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 
 		// added with INSPECTIT-632
 		kryo.register(BusinessException.class, new FieldSerializer<BusinessException>(kryo, BusinessException.class));
-		kryo.register(TechnicalException.class, new FieldSerializer<TechnicalException>(kryo, TechnicalException.class));
+		kryo.register(TechnicalException.class,
+				new FieldSerializer<TechnicalException>(kryo, TechnicalException.class));
 		kryo.register(RemoteException.class, new FieldSerializer<RemoteException>(kryo, RemoteException.class));
 		kryo.register(StorageErrorCodeEnum.class, new EnumSerializer(StorageErrorCodeEnum.class));
 		kryo.register(AgentManagementErrorCodeEnum.class, new EnumSerializer(AgentManagementErrorCodeEnum.class));
-		kryo.register(InvocationTargetException.class, new FieldSerializer<InvocationTargetException>(kryo, InvocationTargetException.class) {
-			@Override
-			protected InvocationTargetException create(Kryo kryo, Input input, Class<InvocationTargetException> type) {
-				return new InvocationTargetException(null);
-			}
-		});
-		
+		kryo.register(InvocationTargetException.class,
+				new FieldSerializer<InvocationTargetException>(kryo, InvocationTargetException.class) {
+					@Override
+					protected InvocationTargetException create(Kryo kryo, Input input,
+							Class<InvocationTargetException> type) {
+						return new InvocationTargetException(null);
+					}
+				});
+
+		// added with INSPECTIT-1924
+		kryo.register(ConfigurationInterfaceErrorCodeEnum.class,
+				new EnumSerializer(ConfigurationInterfaceErrorCodeEnum.class));
+
+		// added with INSPECTIT-1971
+		kryo.register(LoggingData.class,
+				new InvocationAwareDataSerializer<LoggingData>(kryo, LoggingData.class, schemaManager));
+
+		// added with INSPECTIT-1915
+		kryo.register(JmxSensorTypeIdent.class, new CustomCompatibleFieldSerializer<JmxSensorTypeIdent>(kryo,
+				JmxSensorTypeIdent.class, schemaManager, true));
+		kryo.register(JmxDefinitionDataIdent.class, new CustomCompatibleFieldSerializer<JmxDefinitionDataIdent>(kryo,
+				JmxDefinitionDataIdent.class, schemaManager));
+		kryo.register(JmxSensorValueData.class,
+				new CustomCompatibleFieldSerializer<JmxSensorValueData>(kryo, JmxSensorValueData.class, schemaManager));
+
+		// added with INSPECTIT-1849
+		kryo.register(HttpInfo.class,
+				new CustomCompatibleFieldSerializer<HttpInfo>(kryo, HttpInfo.class, schemaManager));
+
 		// added with NTDT
 		kryo.register(Permission.class, new FieldSerializer<Permission>(kryo, Permission.class));
 		kryo.register(Role.class, new FieldSerializer<Role>(kryo, Role.class));
@@ -352,8 +428,15 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public <T> T copy(T object) {
+		return kryo.copy(object);
+	}
+
+	/**
 	 * Gets {@link #schemaManager}.
-	 * 
+	 *
 	 * @return {@link #schemaManager}
 	 */
 	public ClassSchemaManager getSchemaManager() {
@@ -361,8 +444,9 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 	}
 
 	/**
-	 * <i>This setter can be removed when the Spring3.0 on the GUI side is working properly.</i>
-	 * 
+	 * <i>This setter can be removed when the Spring3.0 on the GUI side is
+	 * working properly.</i>
+	 *
 	 * @param schemaManager
 	 *            the schemaManager to set
 	 */
@@ -372,7 +456,7 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 
 	/**
 	 * Sets {@link #kryoNetNetwork}.
-	 * 
+	 *
 	 * @param kryoNetNetwork
 	 *            New value for {@link #kryoNetNetwork}
 	 */
@@ -382,7 +466,7 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 
 	/**
 	 * Gets {@link #kryo}.
-	 * 
+	 *
 	 * @return {@link #kryo}
 	 */
 	public Kryo getKryo() {
