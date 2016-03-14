@@ -230,22 +230,23 @@ public class SecurityService implements ISecurityService {
 		if (!checkDataIntegrity(user)) {
 			throw new DataIntegrityViolationException("Data integrity test failed!");
 		}
-		User userWithSameEmail = userDao.findByEmail(user.getEmail());
-		Role existingRole = roleDao.findByID(user.getRoleId());
-		if (userWithSameEmail != null) {
+		List<User> sameEmail = userDao.findByEmail(user.getEmail());
+		List<Role> existingRole = roleDao.findByID(user.getRoleId());
+		if (!sameEmail.isEmpty()) {
 			throw new DataIntegrityViolationException("User with this email does already exist!");
-		} else if (existingRole == null) {
+		} else if (existingRole.isEmpty()) {
 			throw new DataIntegrityViolationException("Invalid role id assigned to this user!");
 		} else {
 			String hashedPassword = Permutation.hashString(user.getPassword());
 			user.setPassword(hashedPassword);
-			userDao.saveOrUpdate(user);					
+			userDao.saveOrUpdate(user);
+					
 		}
 	}
 
 	@Override
 	public User getUser(String email) {
-		return userDao.findByEmail(email);
+		return userDao.load(email);
 	}
 
 	@Override
@@ -306,24 +307,27 @@ public class SecurityService implements ISecurityService {
 	// | ROLE | --------------
 	@Override
 	public Role getRoleByID(long id) throws DataRetrievalFailureException, DataIntegrityViolationException {
-		Role roles = roleDao.findByID(id);
-		
-		if (roles == null) {
-			throw new DataRetrievalFailureException("No roles in the database matching the given id!");			
+		List<Role> roles = roleDao.findByID(id);
+		if (roles.size() == 1) {
+			return roles.get(0);
+		} else if (roles.isEmpty()) {
+			throw new DataRetrievalFailureException("No roles in the database matching the given id!");
 		} else {
-			return roles;
+			throw new DataIntegrityViolationException("Multiple roles with the same id in the database!");
 		}
 	}
 
 	@Override
 	public Role getRoleOfUser(String email) throws AuthenticationException, DataIntegrityViolationException {
-		User foundUser = userDao.findByEmail(email);
-		
-		if (foundUser == null) {
-			throw new DataRetrievalFailureException("No user in the database matching the given email!");			
+		List<User> foundUsers = userDao.findByEmail(email);
+		if (foundUsers.isEmpty()) {
+			throw new AuthenticationException("Email or password is incorrect.");
+		} else if (foundUsers.size() != 1) {
+			throw new DataIntegrityViolationException("There are multiple users with same email.");
 		} else {
-			return getRoleByID(foundUser.getRoleId());
-		}		
+			User user = foundUsers.get(0);
+			return getRoleByID(user.getRoleId());
+		}
 	}
 
 	@Override
@@ -374,5 +378,6 @@ public class SecurityService implements ISecurityService {
 		roleDao.delete(role);
 	}
 
-	// TODO Make more methods available for the administrator module...
+
+		// TODO Make more methods available for the administrator module...
 }
