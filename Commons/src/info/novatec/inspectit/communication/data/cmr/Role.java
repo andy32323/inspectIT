@@ -3,40 +3,75 @@ package info.novatec.inspectit.communication.data.cmr;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
+
 /**
  * Stores the permissions asociated with the Role.
  * @author Joshua Hartmann
  * @author Andreas Herzog
  *
  */
+@Entity
+@NamedQueries({@NamedQuery(name = Role.FIND_ALL, query = "SELECT r FROM Role r"),
+	   @NamedQuery(name = Role.FIND_BY_TITLE, query = "SELECT r FROM Role r WHERE r.title=:title"),
+	   @NamedQuery(name = Role.FIND_BY_ID, query = "SELECT r FROM Role r WHERE r.id=:id") })
 public class Role implements Serializable {
 	/**
 	 * Generated UID.
 	 */
 	private static final long serialVersionUID = 2997485478449132744L;
+
+	/**
+	 * Constant for findAll query.
+	 */	
+	public static final String FIND_ALL = "Role.findAll";
+	
+	/**
+	 * Constant for findByEmail query.
+	 */
+	public static final String FIND_BY_TITLE = "Role.findByTitle";
+	
+	/**
+	 * Constant for findByEmail query.
+	 */
+	public static final String FIND_BY_ID = "Role.findById";
+	
+	/**
+	 * The id of the Role.
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ROLE_SEQUENCE")
+	@SequenceGenerator(name = "ROLE_SEQUENCE", sequenceName = "ROLE_SEQUENCE")
+	private long id;
+	
 	/**
 	 * Contains all permissions this role has.
 	 */
+	@ManyToMany
 	private List<Permission> permissions;
+	
 	/**
 	 * A short title to name the role.
 	 */
+	@Column(unique = true, nullable = false)
 	private String title;
 	
 	/**
 	 * A more detailed description for the role.
 	 */
-	private String description;
-	
-	/**
-	 * The id of the Role.
-	 */
-	private long id;
+	private String description;	
 
 	/**
 	 * Default constructor for Role.
-	 */
-	
+	 */	
 	public Role() {
 		
 	}
@@ -54,6 +89,7 @@ public class Role implements Serializable {
 		this.id = id;
 		this.description = "";
 	}
+	
 	/**
 	 * The constructor for a role.
 	 * @param permissions The permissions this role has.
@@ -65,7 +101,8 @@ public class Role implements Serializable {
 		this.title = title;
 		this.id = 0;
 		this.description = "";
-	}	
+	}
+	
 	/**
 	 * Gets {@link #permissions}.
 	 *   
@@ -74,6 +111,7 @@ public class Role implements Serializable {
 	public List<Permission> getPermissions() {
 		return permissions;
 	}
+	
 	/**
 	 * Gets {@link #title}.
 	 *   
@@ -82,14 +120,16 @@ public class Role implements Serializable {
 	public String getTitle() {
 		return title;
 	}
+	
 	/**
 	 * Gets {@link #Id}.
 	 *   
 	 * @return {@link #Id}  
 	 */
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
+	
 	/**
 	 * Gets {@link #description}.
 	 *   
@@ -98,6 +138,7 @@ public class Role implements Serializable {
 	public String getDescription() {
 		return description;
 	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -105,6 +146,7 @@ public class Role implements Serializable {
 	public String toString() {
 		return "Role [permissions=" + getPermissions().toString() + ", title='" + title + "', description='" + description + "', id=" + id + "]";
 	}
+	
 	/**  
 	 * Sets {@link #permissions}.  
 	 *   
@@ -114,6 +156,7 @@ public class Role implements Serializable {
 	public void setPermissions(List<Permission> permissions) {
 		this.permissions = permissions;
 	}
+	
 	/**  
 	 * Sets {@link #title}.  
 	 *   
@@ -123,6 +166,7 @@ public class Role implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	
 	/**  
 	 * Sets {@link #id}.  
 	 *   
@@ -132,6 +176,7 @@ public class Role implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
+	
 	/**
 	 * Sets {@link #description}.
 	 * @param description
@@ -140,6 +185,4 @@ public class Role implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
 }

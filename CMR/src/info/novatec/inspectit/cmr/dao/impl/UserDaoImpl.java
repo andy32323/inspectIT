@@ -2,10 +2,8 @@ package info.novatec.inspectit.cmr.dao.impl;
 
 import java.util.List;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.persistence.TypedQuery;
+
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
@@ -25,85 +23,65 @@ import info.novatec.inspectit.communication.data.cmr.User;
  * 
  */
 @Repository
-public class UserDaoImpl extends HibernateDaoSupport implements UserDao {
-
+public class UserDaoImpl extends AbstractJpaDao<User> implements UserDao {	
 	/**
-	 * This constructor is used to set the {@link SessionFactory} that is needed by
-	 * {@link HibernateDaoSupport}. In a future version it may be useful to go away from the
-	 * {@link HibernateDaoSupport} and directly use the {@link SessionFactory}. This is described
-	 * here:
-	 * http://blog.springsource.com/2007/06/26/so-should-you-still-use-springs-hibernatetemplate
-	 * -andor-jpatemplate
-	 * 
-	 * @param sessionFactory
-	 *            the hibernate session factory.
+	 * Default constructor.
 	 */
-	@Autowired
-	public UserDaoImpl(SessionFactory sessionFactory) {
-		setSessionFactory(sessionFactory);
-	}
-
+	public UserDaoImpl() {
+		super(User.class);
+	}	
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void delete(User user) {
-		getHibernateTemplate().delete(user);
+		super.delete(user);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void deleteAll(List<User> users) {
-		getHibernateTemplate().deleteAll(users);
+		for (User user : users) {
+			delete(user);
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<User> loadAll() {
-		return getHibernateTemplate().loadAll(User.class);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public List<User> findByExample(User user) {
-		return getHibernateTemplate().findByExample(user);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public User load(String email) {
-		return (User) getHibernateTemplate().get(User.class, email);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void saveOrUpdate(User user) {
-		getHibernateTemplate().saveOrUpdate(user);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public List<User> findByEmail(String email) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-		criteria.add(Restrictions.eq("email", email));
-		return getHibernateTemplate().findByCriteria(criteria);
+		return getEntityManager().createNamedQuery(User.FIND_ALL, User.class).getResultList();
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
+	public User findByEmail(String email) {
+		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_EMAIL, User.class);		
+		query.setParameter("email", email);		
+		List<User> results = query.getResultList();		
+		return results.get(0);
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveOrUpdate(User user) {
+		if (user.getId() == null) {
+			super.create(user);
+		} else {
+			super.update(user);
+		}
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<User> findByRole(long roleId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(User.class);
-		criteria.add(Restrictions.eq("roleId", roleId));
-		return getHibernateTemplate().findByCriteria(criteria);
+		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_EMAIL, User.class);
+		query.setParameter("roleId", roleId);
+		List<User> results = query.getResultList();
+		return results;
 	}
-
 }
