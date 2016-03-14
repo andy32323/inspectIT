@@ -1,15 +1,7 @@
+
 package info.novatec.inspectit.communication.data.cmr;
 
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
 /**
  * Storage for a single permission.
  * 
@@ -17,45 +9,19 @@ import javax.persistence.SequenceGenerator;
  * @author Andreas Herzog
  * @author Lucca Hellriegel
  */
-@Entity
-@NamedQueries({@NamedQuery(name = Permission.FIND_ALL, query = "SELECT p FROM Permission p"),
-	   @NamedQuery(name = Permission.FIND_BY_TITLE, query = "SELECT p FROM Permission p WHERE p.title=:title"),
-	   @NamedQuery(name = Permission.FIND_BY_ID, query = "SELECT p FROM Permission p WHERE p.id=:id") })
 public class Permission implements Serializable {
 	/**
 	 * Generated UID.
 	 */
-	private static final long serialVersionUID = -5411425549495314822L;	
-	
-	/**
-	 * Constant for findAll query.
-	 */	
-	public static final String FIND_ALL = "Permission.findAll";
-	
-	/**
-	 * Constant for findByEmail query.
-	 */
-	public static final String FIND_BY_TITLE = "Permission.findByTitle";
-	
-	/**
-	 * Constant for findByEmail query.
-	 */
-	public static final String FIND_BY_ID = "Permission.findById";
-	
+	private static final long serialVersionUID = -5411425549495314822L;
 	/**
 	 * The id of the permission, used to identify which functionality it covers, must be unique.
 	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERMISSION_SEQUENCE")
-	@SequenceGenerator(name = "PERMISSION_SEQUENCE", sequenceName = "PERMISSION_SEQUENCE")
 	private long id;
-	
 	/**
 	 * A short title for the permission.
 	 */
-	@Column(unique = true, nullable = false)
 	private String title;
-	
 	/**
 	 * A more detailed description for the functionality the permission covers.
 	 */
@@ -105,10 +71,9 @@ public class Permission implements Serializable {
 	 *   
 	 * @return {@link #id}  
 	 */
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
-	
 	/**
 	 * Gets {@link #title}.
 	 *   
@@ -117,7 +82,6 @@ public class Permission implements Serializable {
 	public String getTitle() {
 		return title;
 	}
-	
 	/**
 	 * Gets {@link #description}.
 	 *   
@@ -126,7 +90,6 @@ public class Permission implements Serializable {
 	public String getDescription() {
 		return description;
 	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -144,7 +107,6 @@ public class Permission implements Serializable {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
 	/**  
 	 * Sets {@link #id}.  
 	 *   
@@ -154,7 +116,6 @@ public class Permission implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
 	/**  
 	 * Sets {@link #description}.  
 	 *   
@@ -178,4 +139,7 @@ public class Permission implements Serializable {
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
 	}
+
+	
+	
 }
