@@ -125,6 +125,7 @@ NTSales_Allgemeine_Nutzungsbedingungen_inspectIT_en.doc_V2.0 / 24.07.2012
       <plugin id="info.novatec.spring-core"/>
       <plugin id="info.novatec.spring-expression"/>
       <plugin id="info.novatec.spring-web"/>
+      <plugin id="info.novatec.shiro-spring"/>
       <plugin id="info.novatec.swtgraphics2d"/>
       <plugin id="info.novatec.sysout-over-slf4j"/>
       <plugin id="javax.servlet"/>
