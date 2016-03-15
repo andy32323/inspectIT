@@ -293,6 +293,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		jmxDataAccessService = cmrServiceProvider.getJmxDataAccessService(this);
 		securityService = cmrServiceProvider.getSecurityService(this);
 		
+
 		cachedDataService = new RefreshEditorsCachedDataService(globalDataAccessService, this);
 	}
 
@@ -364,6 +365,23 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	@Override
 	public IGlobalDataAccessService getGlobalDataAccessService() {
 		return globalDataAccessService;
+	}
+
+	/**
+	 * Gets {@link #configurationInterfaceService}.
+	 * 
+	 * @return {@link #configurationInterfaceService}
+	 */
+	public IConfigurationInterfaceService getConfigurationInterfaceService() {
+		return configurationInterfaceService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IJmxDataAccessService getJmxDataAccessService() {
+		return jmxDataAccessService;
 	}
 
 	/**

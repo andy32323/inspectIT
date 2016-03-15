@@ -2270,6 +2270,13 @@
             </visibleWhen>
          </command>
          <command
+               commandId="info.novatec.inspectit.rcp.commands.copyLogMessage"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <command
                commandId="info.novatec.inspectit.rcp.commands.copySqlQuery"
                style="push">
             <visibleWhen

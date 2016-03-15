@@ -225,7 +225,6 @@
 	</bean>
 	<!-- END -->
 	
-
 	<!-- DEFAULT SERVER FOR STATIC CONTENT -->
 	<bean id="defaultServlet" class="org.mortbay.jetty.servlet.DefaultServlet" />
 

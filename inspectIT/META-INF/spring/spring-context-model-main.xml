@@ -321,7 +321,7 @@
 		<property name="serviceName" value="SecurityService" />
 	</bean>
 	<!-- SecurityService End -->
-	
+
 	<bean id="loggerPostProcessor" class="info.novatec.inspectit.spring.logger.LoggerPostProcessor" />
 
 	<bean id="classSchemaManager" class="info.novatec.inspectit.storage.serializer.schema.ClassSchemaManager">

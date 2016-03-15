@@ -30,8 +30,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
 /**
- * Main class of the Central Measurement Repository. The main method is used to
- * start the application.
+ * Main class of the Central Measurement Repository. The main method is used to start the
+ * application.
  * 
  * @author Patrice Bouillet
  * 
@@ -121,8 +121,7 @@ public final class CMR {
 	 */
 	private static void checkForCorrectJvmVersion() {
 		String version = System.getProperty("java.version");
-		// searching for Oracle version pattern: 1.7.0_80 or unofficial builds
-		// from OpenJDK:
+		// searching for Oracle version pattern: 1.7.0_80 or unofficial builds from OpenJDK:
 		// 1.7.0-u80-unofficial
 		Matcher matcher = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)[_-]u?(\\d+)").matcher(version);
 		boolean correctVersion = true;
@@ -149,8 +148,7 @@ public final class CMR {
 		}
 
 		if (!correctVersion) {
-			LOGGER.warn("ATTENTION: The version of this JVM (" + version
-					+ ") is not compatible with the CMR! Please use the JVM that is provided with the installation!");
+			LOGGER.warn("ATTENTION: The version of this JVM (" + version + ") is not compatible with the CMR! Please use the JVM that is provided with the installation!");
 		} else {
 			LOGGER.info("The version of this JVM (" + version + ") is compatible with the CMR.");
 		}
@@ -210,8 +208,7 @@ public final class CMR {
 			if (null != is) {
 				try {
 					configurator.doConfigure(is);
-				} catch (JoranException e) { // NOPMD NOCHK StatusPrinter will
-												// handle this
+				} catch (JoranException e) { // NOPMD NOCHK StatusPrinter will handle this
 				} finally {
 					is.close();
 				}
