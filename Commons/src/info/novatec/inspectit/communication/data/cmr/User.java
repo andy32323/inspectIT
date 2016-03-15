@@ -50,7 +50,7 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQUENCE")
 	@SequenceGenerator(name = "USER_SEQUENCE", sequenceName = "USER_SEQUENCE")
-	private long id;
+	private Long id;
 
 	/**
 	 * The hex string representation of the SHA256 Hash of the user password.
@@ -66,7 +66,7 @@ public class User implements Serializable {
 	/**
 	 * The id of the role the user is set to.
 	 */
-	private long roleId;
+	private Long roleId;
 	
 	/**
 	 * Indicating if this user is locked.
@@ -150,7 +150,7 @@ public class User implements Serializable {
 	 * 
 	 * @return {@link #roleId}
 	 */
-	public long getRoleId() {
+	public Long getRoleId() {
 		return roleId;
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -50,12 +51,12 @@ public class Role implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ROLE_SEQUENCE")
 	@SequenceGenerator(name = "ROLE_SEQUENCE", sequenceName = "ROLE_SEQUENCE")
-	private long id;
+	private Long id;
 	
 	/**
 	 * Contains all permissions this role has.
 	 */
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	private List<Permission> permissions;
 	
 	/**
@@ -101,7 +102,6 @@ public class Role implements Serializable {
 		super();
 		this.permissions = permissions;
 		this.title = title;
-		this.id = 0;
 		this.description = description;
 	}
 	

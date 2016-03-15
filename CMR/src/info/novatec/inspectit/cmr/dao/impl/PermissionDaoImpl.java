@@ -3,20 +3,14 @@ package info.novatec.inspectit.cmr.dao.impl;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import info.novatec.inspectit.cmr.dao.PermissionDao;
 import info.novatec.inspectit.communication.data.cmr.Permission;
 
 /**
- * The default implementation of the {@link PermissionDao} interface by using the
- * {@link HibernateDaoSupport} from Spring.
- * <p>
- * Delegates many calls to the {@link HibernateTemplate} returned by the {@link HibernateDaoSupport}
- * class.
- * 
+ * The default implementation of the {@link PermissionDao} interface by using the Entity Manager.
  * @author Joshua Hartmann
  * @author Andreas Herzog
  * 
@@ -33,6 +27,7 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void delete(Permission permission) {
 		super.delete(permission);
 	}
@@ -40,6 +35,7 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void deleteAll(List<Permission> permissions) {
 		for (Permission permission : permissions) {
 			delete(permission);
@@ -49,6 +45,7 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override	
 	public List<Permission> loadAll() {
 		return getEntityManager().createNamedQuery(Permission.FIND_ALL, Permission.class).getResultList();
 	}
@@ -56,6 +53,7 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Permission findById(long id) {
 		TypedQuery<Permission> query = getEntityManager().createNamedQuery(Permission.FIND_BY_TITLE, Permission.class);		
 		query.setParameter("id", id);		
@@ -66,6 +64,8 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
+	@Transactional
 	public void saveOrUpdate(Permission permission) {
 		if (permission.getId() == null) {
 			super.create(permission);
@@ -77,6 +77,7 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Permission findByTitle(String title) {
 		TypedQuery<Permission> query = getEntityManager().createNamedQuery(Permission.FIND_BY_TITLE, Permission.class);		
 		query.setParameter("title", title);		
