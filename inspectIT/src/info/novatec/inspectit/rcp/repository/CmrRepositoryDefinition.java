@@ -368,23 +368,6 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * Gets {@link #configurationInterfaceService}.
-	 * 
-	 * @return {@link #configurationInterfaceService}
-	 */
-	public IConfigurationInterfaceService getConfigurationInterfaceService() {
-		return configurationInterfaceService;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public IJmxDataAccessService getJmxDataAccessService() {
-		return jmxDataAccessService;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public ISecurityService getSecurityService() {

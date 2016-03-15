@@ -2845,6 +2845,10 @@
                name="info.novatec.inspectit.rcp.repositoryManagerToolbar.separator3"
                visible="true">
          </separator>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.cmrLogin"
+               label="CMR Login"
+               style="push">
           <visibleWhen
                   checkEnabled="false">
                <and>
