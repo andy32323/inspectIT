@@ -21,7 +21,7 @@ import javax.persistence.SequenceGenerator;
 @NamedQueries({@NamedQuery(name = Permission.FIND_ALL, query = "SELECT p FROM Permission p"),
 	   @NamedQuery(name = Permission.FIND_BY_TITLE, query = "SELECT p FROM Permission p WHERE p.title=:title"),
 	   @NamedQuery(name = Permission.FIND_BY_ID, query = "SELECT p FROM Permission p WHERE p.id=:id") })
-public class Permission implements Serializable {
+public class Permission implements Comparable<Permission>, Serializable {
 	/**
 	 * Generated UID.
 	 */
@@ -175,5 +175,18 @@ public class Permission implements Serializable {
 	 */
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
+	}
+	
+	/**
+	 * Comparision based on the ID.
+	 * @param o the other permission.
+	 * @return this.getId().compareTo(o.getId())
+	 */
+	public int compareTo(Permission o) {
+		if (getId() == null) {
+			return -1;
+		} else {
+			return getId().compareTo(o.getId());
+		}		
 	}
 }
