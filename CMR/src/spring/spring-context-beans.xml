@@ -80,4 +80,10 @@
 		<property name="uncaughtExceptionHandler" ref="forkJoinPoolExceptionHandler" />
 	</bean>
 	
+	<bean id="SecurityInitialization" class="info.novatec.inspectit.cmr.security.SecurityInitialization" />
+	
+	<bean id="cmrSecurityManager" class="info.novatec.inspectit.cmr.security.CmrSecurityManager" />
+	
+	<bean id="cmrRealm" class="info.novatec.inspectit.cmr.security.CmrRealm" />
+	
 </beans>

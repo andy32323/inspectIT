@@ -223,6 +223,25 @@ public abstract class CmrServiceProvider {
 	protected abstract IStorageService getStorageService();
 
 	/**
+	 * Returns Spring created {@link SecurityService}.
+	 * 
+	 * @param cmrRepositoryDefinition .
+	 * @return Returns {@link SecurityService}.
+	 */
+	public ISecurityService getSecurityService(CmrRepositoryDefinition cmrRepositoryDefinition) {
+		ISecurityService securityService = getSecurityService();
+		((ICmrService) securityService).initService(cmrRepositoryDefinition);
+		return securityService;
+	}
+
+	/**
+	 * Returns Spring created {@link SecurityService}.
+	 * 
+	 * @return Returns Spring created {@link SecurityService}.
+	 */
+	protected abstract ISecurityService getSecurityService();
+	
+	/**
 	 * Returns properly initialized {@link IConfigurationInterfaceService}.
 	 * 
 	 * @param cmrRepositoryDefinition

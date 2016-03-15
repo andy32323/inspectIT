@@ -7,18 +7,21 @@ import info.novatec.inspectit.cmr.service.IGlobalDataAccessService;
 import info.novatec.inspectit.cmr.service.IHttpTimerDataAccessService;
 import info.novatec.inspectit.cmr.service.IInvocationDataAccessService;
 import info.novatec.inspectit.cmr.service.IJmxDataAccessService;
+import info.novatec.inspectit.cmr.service.ISecurityService;
 import info.novatec.inspectit.cmr.service.IServerStatusService;
 import info.novatec.inspectit.cmr.service.IServerStatusService.ServerStatus;
 import info.novatec.inspectit.cmr.service.ISqlDataAccessService;
 import info.novatec.inspectit.cmr.service.IStorageService;
 import info.novatec.inspectit.cmr.service.ITimerDataAccessService;
 import info.novatec.inspectit.cmr.service.cache.CachedDataService;
+import info.novatec.inspectit.communication.data.cmr.Permission;
 import info.novatec.inspectit.rcp.InspectIT;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider;
 import info.novatec.inspectit.rcp.repository.service.RefreshEditorsCachedDataService;
 import info.novatec.inspectit.rcp.repository.service.cmr.CmrServiceProvider;
 import info.novatec.inspectit.version.VersionService;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +58,40 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 */
 	public static final String DEFAULT_DESCRIPTION = "This Central Management Repository (CMR) is automatically added by default when you first start the inspectIT.";
 
+	/**
+	 * Users sessionId.
+	 */
+	private Serializable sessionId;
+
+	/**
+	 * List for access to granted rights.
+	 */
+	private List<Permission> grantedPermissions = null;
+
+	/**
+	 * Enumeration for the login status.
+	 * 
+	 * @author Clemens Geibel
+	 *
+	 */
+	public enum LoginStatus {
+		/**
+		 * User is logged in.
+		 */
+		LOGGEDIN,
+
+		/**
+		 * User is logged out.
+		 */
+		LOGGEDOUT;
+	}
+
+	/**
+	 * The login status. LOGGEDIN in case a user is logged in on the CMR, otherwise LOGGEDOUT.
+	 */
+	private LoginStatus loginStatus = LoginStatus.LOGGEDOUT;
+
+	
 	/**
 	 * Enumeration for the online status of {@link CmrRepositoryDefinition}.
 	 * 
@@ -199,6 +236,11 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	private IStorageService storageService;
 
 	/**
+	 * The security service.
+	 */
+	private ISecurityService securityService;
+	
+	/**
 	 * The configuration interface service.
 	 */
 	private IConfigurationInterfaceService configurationInterfaceService;
@@ -249,6 +291,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		storageService = cmrServiceProvider.getStorageService(this);
 		configurationInterfaceService = cmrServiceProvider.getConfigurationInterfaceService(this);
 		jmxDataAccessService = cmrServiceProvider.getJmxDataAccessService(this);
+		securityService = cmrServiceProvider.getSecurityService(this);
+		
 
 		cachedDataService = new RefreshEditorsCachedDataService(globalDataAccessService, this);
 	}
@@ -323,6 +367,30 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		return globalDataAccessService;
 	}
 
+	/**
+	 * Gets {@link #configurationInterfaceService}.
+	 * 
+	 * @return {@link #configurationInterfaceService}
+	 */
+	public IConfigurationInterfaceService getConfigurationInterfaceService() {
+		return configurationInterfaceService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IJmxDataAccessService getJmxDataAccessService() {
+		return jmxDataAccessService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public ISecurityService getSecurityService() {
+		return securityService;
+	}
+	
 	/**
 	 * Gets {@link #configurationInterfaceService}.
 	 * 
@@ -564,5 +632,122 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	@Override
 	public String toString() {
 		return "Repository definition :: Name=" + name + " IP=" + ip + " Port=" + port;
+	}
+	
+	/**
+	 * Standard Session-ID.
+	 */
+	public static final Serializable STANDARD_SESSION_ID = -1;
+	
+	/**
+	 * Method to login on the CMR.
+	 * 
+	 * @param email
+	 *            The users email
+	 * @param password
+	 *            The users password
+	 * @return Returns whether the login was successful
+	 */
+	public boolean login(String email, String password) {
+		Serializable authenticate = securityService.authenticate(password, email);
+		refreshLoginStatus();
+		if (null != authenticate) {
+			sessionId = authenticate;
+			return true;
+		}
+
+		sessionId = STANDARD_SESSION_ID;
+		return false;
+	}
+
+	/**
+	 * Method for logging out.
+	 */
+	public void logout() {
+		if (null != sessionId) {
+			securityService.logout(sessionId);
+			sessionId = STANDARD_SESSION_ID;
+		}
+		refreshLoginStatus();
+	}
+
+	/**
+	 * Refreshes the login status.
+	 */
+	public void refreshLoginStatus() {
+		if (isLoggedIn()) {
+			loginStatus = LoginStatus.LOGGEDIN;
+		} else {
+			/*
+			 * MessageDialog causes an "unhandled loop exception" in Windows. if
+			 * (LoginStatus.LOGGEDIN == loginStatus) { MessageDialog.openError(null, "Warning",
+			 * "You are no longer logged in."); }
+			 */
+			loginStatus = LoginStatus.LOGGEDOUT;
+			sessionId = STANDARD_SESSION_ID;
+		}
+		refreshPermissions();
+	}
+
+	/**
+	 * Checks whether the user is still logged in.
+	 * 
+	 * @return Returns if the user is logged in.
+	 */
+	public boolean isLoggedIn() {
+		if (!isOnline() || STANDARD_SESSION_ID.equals(sessionId)) {
+			return false;
+		}
+		return securityService.existsSession(sessionId);
+	}
+
+	/**
+	 * Refreshes the {@link #grantedPermissions}.
+	 */
+	public void refreshPermissions() {
+		if (LoginStatus.LOGGEDIN == loginStatus) {
+			setGrantedPermissions(securityService.getPermissions(sessionId));
+		} else {
+			setGrantedPermissions(null);
+		}
+	}
+
+	/**
+	 * Returns the login status.
+	 * 
+	 * @return Returns the login status
+	 */
+	public LoginStatus getLoginStatus() {
+		return loginStatus;
+	}
+
+	private void setGrantedPermissions(List<Permission> list) {
+		this.grantedPermissions = list;
+	}
+	
+	public List<Permission> getGrantedPermissions() {
+		return this.grantedPermissions;
+	}
+
+	/**
+	 * Checks Permission.
+	 * 
+	 * @param permission
+	 *            Permission to be checked.
+	 * @return true if has Permission.
+	 */
+	public boolean hasPermission(String permission) {
+		if (this.grantedPermissions != null) {
+				for (int i = 0; i < grantedPermissions.size(); i++) {
+			if (grantedPermissions.get(i).getTitle().equals(permission)) {
+				return true;
+			}
+		}
+		}
+		return false; 
+	}
+	
+	public Serializable getSessionId() {
+		return sessionId;
 	}
 }
