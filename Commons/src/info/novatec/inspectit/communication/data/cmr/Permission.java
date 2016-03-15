@@ -48,7 +48,7 @@ public class Permission implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERMISSION_SEQUENCE")
 	@SequenceGenerator(name = "PERMISSION_SEQUENCE", sequenceName = "PERMISSION_SEQUENCE")
-	private long id;
+	private Long id;
 	
 	/**
 	 * A short title for the permission.
@@ -83,7 +83,6 @@ public class Permission implements Serializable {
 		this.title = title;
 		this.description = description;
 		this.parameter = "No parameter given";
-		this.id = 0;
 	}
 	
 	/**
@@ -97,7 +96,6 @@ public class Permission implements Serializable {
 		this.title = title;
 		this.description = description;
 		this.parameter = parameter;
-		this.id = 0;
 	}
 	
 	/**
