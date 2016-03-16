@@ -96,39 +96,19 @@ public class PermissionDaoImpl extends HibernateDaoSupport implements Permission
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Permission> findByTitle(Permission permission) {
+	public Permission findByTitle(String title) {
 		DetachedCriteria criteria = DetachedCriteria.forClass(Permission.class);
-		criteria.add(Restrictions.eq("title", permission.getTitle()));
-		return getHibernateTemplate().findByCriteria(criteria);
+		criteria.add(Restrictions.eq("title", title));
+		 		
+ 		List<Permission> result = getHibernateTemplate().findByCriteria(criteria);
+ 		
+ 		if (result.isEmpty()) {
+ 			return null;
+ 		} else {
+ 			return result.get(0);
+		}
 	}
-	
-	///**
-	// * {@inheritDoc}
-	// */
-	/*
-	@SuppressWarnings("unchecked")
-	public Permission findByCriteria(Permission permission, boolean id, boolean title, boolean desciption) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(Permission.class);
-		if (id) {
-			criteria.add(Restrictions.eq("id", permission.getId()));			
-		}
-		if (title) {
-			criteria.add(Restrictions.eq("title", permission.getTitle()));			
-		}
-		if (desciption) {
-			criteria.add(Restrictions.eq("desciption", permission.getDescription()));			
-		}
-		List<Permission> possiblePermissions = getHibernateTemplate().findByCriteria(criteria);
 		
-		if (possiblePermissions.size() > 1) {
-			return null; //hier evtl auch ein fehler werfen
-		} else if (possiblePermissions.size() == 1) {
-			return possiblePermissions.get(0);
-		} else {
-			return null;
-		}
-	}*/
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -137,7 +117,8 @@ public class PermissionDaoImpl extends HibernateDaoSupport implements Permission
 		List<Permission> possiblePermissions = getHibernateTemplate().findByExample(permission);
 		
 		if (possiblePermissions.size() > 1) {
-			return null; //hier evtl auch ein fehler werfen
+			//if there is more than one, we don't know which to choose, so just return null
+			return null;
 		} else if (possiblePermissions.size() == 1) {
 			return possiblePermissions.get(0);
 		} else {

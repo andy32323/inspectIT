@@ -26,7 +26,12 @@ public class User implements Serializable {
 	 * The id of the role the user is set to.
 	 */
 	private long roleId;
-
+	
+	/**
+	 * Indicating if this user is locked.
+	 */
+	private boolean locked;
+	
 	/**
 	 * The default-constructor.
 	 */
@@ -43,11 +48,14 @@ public class User implements Serializable {
 	 *            The email of the user
 	 * @param roleId
 	 *            The id of the role the user is attached to
+	 * @param isLocked
+	 * 			boolean to see if user is locked by admin
 	 */
-	public User(String password, String email, long roleId) {
+	public User(String password, String email, long roleId, boolean isLocked) {
 		this.password = password;
 		this.email = email;
 		this.roleId = roleId;
+		this.locked = isLocked;
 	}
 	
 	/**
@@ -73,7 +81,7 @@ public class User implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "User [email=" + email + ", hashed password [" + password + "], " + "userRoleId=" + roleId + "]";
+		return (locked ? "(LOCKED) " : "") + "User [email=" + email + ", hashed password [" + password + "], " + "userRoleId=" + roleId + "]";
 	}
 
 	/**
@@ -115,5 +123,19 @@ public class User implements Serializable {
 	public void setRoleId(long roleId) {
 		this.roleId = roleId;
 	}
-
+	/**
+	 * Indicating if the user is locked or not.
+	 * @return True if the user is locked, false if not.
+	 */
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	/**
+	 * Allows to lock/unlock a user.
+	 * @param locked indicating if this user should be locked or not.
+	 */
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
 }
