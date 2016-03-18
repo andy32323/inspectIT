@@ -38,6 +38,7 @@ public class SecurityInitialization {
 	 */
 	public void start() {
 		if (permissionDao.loadAll().isEmpty()) {
+			//Permission names are used for security checks on client, so change only with great care
 			Permission cmrRecordingPermission = new Permission("cmrRecordingPermission", "Permission to start recording from Agent");
 			Permission cmrShutdownAndRestartPermission = new Permission("cmrShutdownAndRestartPermission", "Permission for shutting down and restarting the CMR");
 			Permission cmrDeleteAgentPermission = new Permission("cmrDeleteAgentPermission", "Permission for deleting an Agent");
