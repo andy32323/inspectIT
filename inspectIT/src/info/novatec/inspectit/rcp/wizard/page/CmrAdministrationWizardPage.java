@@ -1,6 +1,6 @@
-package info.novatec.inspectit.rcp.dialog;
+package info.novatec.inspectit.rcp.wizard.page;
 
-import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -8,8 +8,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Shell;
 import info.novatec.inspectit.rcp.dialog.ShowAllRolesDialog;
 import info.novatec.inspectit.rcp.dialog.ShowAllUsersDialog;
 import info.novatec.inspectit.rcp.dialog.ShowEditablePermissionsDialog;
@@ -19,20 +17,35 @@ import info.novatec.inspectit.rcp.dialog.AddUserDialog;
 import info.novatec.inspectit.rcp.dialog.SearchUsersDialog;
 
 /**
- * Dialog for managing users on the CMR.
+ * Wizard Page for managing users on the CMR.
  * 
  * @author Lucca Hellriegel
  * @author Thomas Sachs
  */
-public class CmrAdministrationDialog extends TitleAreaDialog {
+public class CmrAdministrationWizardPage extends WizardPage {
 	/**
 	 * Default page message.
 	 */
-	private static final String DEFAULT_MESSAGE = "Managing users, roles and permissions.";
+	private static final String DEFAULT_MESSAGE = "Managing users and roles.";
 	/**
 	 * CmrRepositoryDefinition for easy access to security services.
 	 */
 	private CmrRepositoryDefinition cmrRepositoryDefinition;
+
+	/**
+	 * Default constructor.
+	 * 
+	 * @param title
+	 *            title for the CMR Administration Page
+	 * @param cmrRepositoryDefinition
+	 *            the CmrRepositoryDefinition
+	 */
+	public CmrAdministrationWizardPage(String title, CmrRepositoryDefinition cmrRepositoryDefinition) {
+		super(title);
+		this.setTitle(title);
+		this.setMessage(DEFAULT_MESSAGE);
+		this.cmrRepositoryDefinition = cmrRepositoryDefinition;
+	}
 
 	/**
 	 * The dialog to show available roles.
@@ -63,51 +76,14 @@ public class CmrAdministrationDialog extends TitleAreaDialog {
 	 * The dialog to show permissions.
 	 */
 	private ShowEditablePermissionsDialog showEditablePermissionsDialog;
-	
-	/**
-	 * Finish Dialog button.
-	 */
-	private Button closeButton;
-	
-	/**
-	 * Finish button id.
-	 */
-	private static final int CLOSE_ID = 0;
 
 	/**
-	 * Default constructor.
-	 * 
-	 * @param title
-	 *            title for the CMR Administration Page
-	 * @param cmrRepositoryDefinition
-	 *            the CmrRepositoryDefinition
-	 */
-	public CmrAdministrationDialog(Shell parentShell, CmrRepositoryDefinition cmrRepositoryDefinition) {
-		super(parentShell);
-		this.cmrRepositoryDefinition = cmrRepositoryDefinition;
-	}
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void create() {
-		super.create();
-		this.setTitle("CMR Administration");
-		this.setMessage(DEFAULT_MESSAGE);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected Control createDialogArea(Composite parent) {
+	public void createControl(Composite parent) {
 		final Composite main = new Composite(parent, SWT.NONE);
 		main.setLayout(new GridLayout(3, true));
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = 400;
-		gd.heightHint = 100;
-		main.setLayoutData(gd);
 
 		Button adduser = new Button(main, SWT.CENTER);
 		adduser.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -176,20 +152,21 @@ public class CmrAdministrationDialog extends TitleAreaDialog {
 			}
 		});
 		
-		return main;
+		setControl(main);
 	}
-	protected void createButtonsForButtonBar(Composite parent) {
-		closeButton = createButton(parent, CLOSE_ID, "Close", true);
-		closeButton.setEnabled(true);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void buttonPressed(int buttonId) {
-		if (CLOSE_ID == buttonId) {
-			cancelPressed();
-		}
-	}
+
+//	protected void createButtonsForButtonBar(Composite parent) {
+//		doneButton = createButton(parent, DONE_ID, "Done", true);
+//		doneButton.setEnabled(false);
+//		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CLOSE_LABEL, false);
+//	}
+//
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	protected void buttonPressed(int buttonId) {
+//		if (DONE_ID == buttonId) {
+//			cancelPressed()
+//		}
+//	}
 }
