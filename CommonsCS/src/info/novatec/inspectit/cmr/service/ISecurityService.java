@@ -151,7 +151,7 @@ public interface ISecurityService {
 	/**
 	 * 
 	 * @param userOld 
-	 * 		the user that is edited and now needs to be deleted
+	 * 		the user that is edited
 	 * @param email
 	 * 		the new email
 	 * @param password
