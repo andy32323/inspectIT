@@ -275,11 +275,6 @@ public class SecurityService implements ISecurityService {
 	}
 
 	@Override
-	public void changePermissionParameter(Permission permission) {
-		permissionDao.saveOrUpdate(permission);
-	}
-
-	@Override
 	public void changePermissionAttributes(Permission perm, String newTitle, String newDescription,
 			String newParamter) {
 		perm.setTitle(newTitle);

@@ -129,6 +129,7 @@ public class EditRoleDialog extends TitleAreaDialog {
 		roleDescriptionBoxLabel.setText("Description:");
 		roleDescriptionBox = new Text(main, SWT.BORDER);
 		roleDescriptionBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		roleDescriptionBox.setText(roleOld.getDescription());
 		
 		Label textPermissionLabel = new Label(main, SWT.NONE);
 		textPermissionLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 2, 5));
@@ -218,7 +219,7 @@ public class EditRoleDialog extends TitleAreaDialog {
 				}
 			}
 			if (!stillAdmin && adminRoles.size() < 2) {
-				MessageDialog.openWarning(null, "Warning", "You are about to remove the last admin role. Please make sure there is at least one admin role remaining.");
+				MessageDialog.openWarning(null, "Warning", "This role can not be deleted. Please make sure there is at least one admin role remaining.");
 				return;
 			}
 		}
