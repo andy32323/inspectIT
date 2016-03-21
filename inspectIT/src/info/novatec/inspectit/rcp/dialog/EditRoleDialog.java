@@ -124,6 +124,12 @@ public class EditRoleDialog extends TitleAreaDialog {
 		roleNameBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		roleNameBox.setText(roleOld.getTitle());
 
+		Label roleDescriptionBoxLabel = new Label(main, SWT.NONE);
+		roleDescriptionBoxLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		roleDescriptionBoxLabel.setText("Description:");
+		roleDescriptionBox = new Text(main, SWT.BORDER);
+		roleDescriptionBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
 		Label textPermissionLabel = new Label(main, SWT.NONE);
 		textPermissionLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 2, 5));
 		textPermissionLabel.setText("Mark the permissions, that the new role should have:");
@@ -142,12 +148,6 @@ public class EditRoleDialog extends TitleAreaDialog {
 				}
 			}
 		}
-
-		Label roleDescriptionBoxLabel = new Label(main, SWT.NONE);
-		roleDescriptionBoxLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		roleDescriptionBoxLabel.setText("Description:");
-		roleDescriptionBox = new Text(main, SWT.BORDER);
-		roleDescriptionBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		return main;
 	}

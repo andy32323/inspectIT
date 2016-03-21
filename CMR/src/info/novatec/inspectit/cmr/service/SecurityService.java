@@ -239,7 +239,6 @@ public class SecurityService implements ISecurityService {
 		userDao.delete(user);
 	}
 
-	// TODO: TESTMETHODE!
 	@Override
 	public void changeUserAttribute(User userOld, String email, String password, long roleID, boolean passwordChanged,
 			boolean isLocked) {
@@ -248,7 +247,8 @@ public class SecurityService implements ISecurityService {
 		if (currentName.equals(userOld.getEmail())) {
 			currentUser.logout();
 		}
-		if (email != userOld.getEmail() && userDao.findByEmail(email) != null) {
+
+		if (!email.equals(userOld.getEmail()) && userDao.findByEmail(email) != null) {
 			throw new DataIntegrityViolationException("User with this email does already exist!");
 		}
 		if (roleDao.findByID(roleID) == null) {
@@ -259,7 +259,8 @@ public class SecurityService implements ISecurityService {
 		userOld.setRoleId(roleID);
 		userOld.setLocked(isLocked);
 		if (passwordChanged) {
-			userOld.setPassword(password);
+			String hashedPassword = Permutation.hashString(password);
+			userOld.setPassword(hashedPassword);
 		}
 		if (!checkDataIntegrity(userOld)) {
 			throw new DataIntegrityViolationException("Data integrity test failed!");
