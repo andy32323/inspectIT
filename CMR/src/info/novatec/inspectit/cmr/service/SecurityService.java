@@ -219,8 +219,6 @@ public class SecurityService implements ISecurityService {
 			String hashedPassword = Permutation.hashString(user.getPassword());
 			user.setPassword(hashedPassword);
 			userDao.saveOrUpdate(user);
-			System.out.println(user.toString());
-			System.out.println(userDao.loadAll().toString());
 		}
 	}
 
