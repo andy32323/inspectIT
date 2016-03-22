@@ -37,7 +37,7 @@ public class SecurityInitialization {
 	 * Initializes the database with the given roles and permissions.
 	 */
 	public void start() {
-		if (permissionDao.loadAll().isEmpty()) {
+		if (userDao.loadAll().isEmpty()) {
 			//Permission names are used for security checks on client, so change only with great care
 			Permission cmrRecordingPermission = new Permission("cmrRecordingPermission", "Permission to start recording from Agent");
 			Permission cmrShutdownAndRestartPermission = new Permission("cmrShutdownAndRestartPermission", "Permission for shutting down and restarting the CMR");
