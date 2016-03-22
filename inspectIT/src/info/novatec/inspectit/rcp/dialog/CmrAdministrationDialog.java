@@ -189,7 +189,7 @@ public class CmrAdministrationDialog extends TitleAreaDialog {
 					MessageDialog.openInformation(null, "Information", "Database reset successful!");
 					cancelPressed();
 					cmrRepositoryDefinition.refreshLoginStatus();
-					
+
 				}
 			}
 		});
