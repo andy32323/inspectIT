@@ -213,7 +213,7 @@ public class EditUserDialog extends TitleAreaDialog {
 		if (passwordBox.getText().isEmpty()) {
 			passwordChanged = false;
 		}
-		if (userOld.getEmail().equals("guest") && passwordChanged || !mail.equals(userOld.getEmail())) {
+		if (userOld.getEmail().equals("guest") && (passwordChanged || !mail.equals(userOld.getEmail()))) {
 			MessageDialog.openWarning(null, "Warning", "The guest user's login data can not be edited.");
 			return;
 		}
