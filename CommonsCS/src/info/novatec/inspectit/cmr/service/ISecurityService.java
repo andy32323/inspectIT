@@ -192,13 +192,6 @@ public interface ISecurityService {
 	List<Permission> getAllPermissions();
 
 	/**
-	 * Changes the parameter for a permission, just a wrapper for changePermissionAttributes.
-	 * @param permission
-	 * 				the permission with the actualized parameter.
-	 */
-	void changePermissionParameter(Permission permission);	
-
-	/**
 	 * Returns titles of permissions as Strings.
 	 * 
 	 * @return List with the users permissions.
