@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,15 +34,21 @@ public class KryoHttpInvokerServiceExporter extends HttpInvokerServiceExporter {
 	 */
 	@Autowired
 	private SerializationManagerProvider serializationManagerProvider;
-
+	
+	/**
+	 * The secure remote invocation executor.
+	 */
+	@Autowired
+	private SessionAwareSecureRemoteInvocationExecutor sessionAwareSecureExecutor;
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected RemoteInvocation readRemoteInvocation(HttpServletRequest request, InputStream is) throws IOException, ClassNotFoundException {
-		try {
+		try (Input input = new Input(is)) {
 			ISerializer serializer = serializationManagerProvider.createSerializer();
-			return (RemoteInvocation) serializer.deserialize(new Input(is));
+			return (RemoteInvocation) serializer.deserialize(input);
 		} catch (SerializationException e) {
 			throw new IOException(e);
 		}
@@ -52,17 +59,30 @@ public class KryoHttpInvokerServiceExporter extends HttpInvokerServiceExporter {
 	 */
 	@Override
 	protected void writeRemoteInvocationResult(HttpServletRequest request, HttpServletResponse response, RemoteInvocationResult result, OutputStream os) throws IOException {
-		try {
+		try (Output output = new Output(os)) {
 			if (!result.hasException()) {
 				Object value = result.getValue();
 				result = new RemoteInvocationResult(value);
 			}
 
 			ISerializer serializer = serializationManagerProvider.createSerializer();
-			serializer.serialize(result, new Output(os));
+						
+			// if there is session id write it first, or null if there is not
+			Object sessionId = sessionAwareSecureExecutor.getSessionId();
+			serializer.serialize(sessionId, output);
+			
+			serializer.serialize(result, output);
 		} catch (SerializationException e) {
 			throw new IOException(e);
 		}
 	}
-
+	
+	/**
+	 * Post constructor.
+	 */
+	@PostConstruct
+	protected void init() {
+		setRemoteInvocationExecutor(sessionAwareSecureExecutor);
+	}
+	
 }

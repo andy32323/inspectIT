@@ -4,8 +4,6 @@ import info.novatec.inspectit.communication.data.cmr.Permission;
 
 import java.util.List;
 
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
 /**
  * This DAO is used to handle all {@link Permission} objects.
  * 
@@ -14,27 +12,15 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * 
  */
 public interface PermissionDao {
-
 	/**
-	 * Load a specific {@link Permission} from the underlying storage by passing the id.
+	 * Load a specific {@link Permission} from the underlying storage by passing
+	 * the id.
 	 * 
 	 * @param id
 	 *            The id of the Permission.
 	 * @return The found {@link Permission} object.
 	 */
-	Permission load(long id);
-
-
-	/**
-	 * Execute a findByExample query against the underlying storage.
-	 * 
-	 * @param permission
-	 *            The {@link Permission} object which serves as the example.
-	 * @return The list of {@link Permission} objects which have the same contents as the passed
-	 *         example object.
-	 * @see HibernateTemplate#findByExample(Object)
-	 */
-	List<Permission> findByExample(Permission permission);
+	Permission findById(long id);
 
 	/**
 	 * Saves or updates this {@link Permission} in the underlying storage.
@@ -53,7 +39,8 @@ public interface PermissionDao {
 	void delete(Permission permission);
 
 	/**
-	 * Deletes all {@link Permission} objects which are stored in the passed list.
+	 * Deletes all {@link Permission} objects which are stored in the passed
+	 * list.
 	 * 
 	 * @param permissions
 	 *            The list containing the {@link Permission} objects to delete.
@@ -61,7 +48,8 @@ public interface PermissionDao {
 	void deleteAll(List<Permission> permissions);
 
 	/**
-	 * Returns all {@link Permission} objects which are saved in the underlying storage.
+	 * Returns all {@link Permission} objects which are saved in the underlying
+	 * storage.
 	 * 
 	 * @return Returns all stored {@link Permission} objects.
 	 */
@@ -69,16 +57,10 @@ public interface PermissionDao {
 
 	/**
 	 * Returns a permission object with the same title as the parameter.
-	 * @param permission permission
+	 * 
+	 * @param title
+	 *            the title of the permission
 	 * @return a permission
 	 */
-	List<Permission> findByTitle(Permission permission);
-	
-	/**
-	 * Searches for a Permission in the Database matching the example.
-	 * E.g. when a Permission Object is created, the id field is not set and with this we can get the Permission Object with the corresponding id in the Database.
-	 * @param permission A sample permission
-	 * @return A matching Permission if found, null if not found or multiple entries
-	 */
-	Permission findOneByExample(Permission permission);
+	Permission findByTitle(String title);
 }

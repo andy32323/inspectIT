@@ -4,6 +4,7 @@ import info.novatec.inspectit.rcp.repository.CmrRepositoryDefinition;
 import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+import org.springframework.remoting.support.RemoteInvocationFactory;
 
 /**
  * Abstract class for all {@link CmrRepositoryDefinition} service classes.
@@ -42,11 +43,22 @@ public class CmrService implements ICmrService {
 	 * Service name.
 	 */
 	private String serviceName;
+	
+	/**
+	 * Remote invocation factory.
+	 */
+	private RemoteInvocationFactory remoteInvocationFactory;
 
 	/**
 	 * The serialization manager for kryo.
 	 */
 	private SerializationManagerProvider serializationManagerProvider;
+
+	/**
+	 * Defines if the default value should be returned when communication errors occurs in the
+	 * invocation of the service.
+	 */
+	private boolean defaultValueOnError;
 
 	/**
 	 * {@inheritDoc}
@@ -68,6 +80,7 @@ public class CmrService implements ICmrService {
 
 		httpInvokerProxyFactoryBean.setServiceInterface(serviceInterface);
 		httpInvokerProxyFactoryBean.setServiceUrl(PROTOCOL + cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + REMOTING + serviceName);
+		httpInvokerProxyFactoryBean.setRemoteInvocationFactory(remoteInvocationFactory);
 		httpInvokerProxyFactoryBean.afterPropertiesSet();
 
 		service = httpInvokerProxyFactoryBean.getObject();
@@ -124,6 +137,35 @@ public class CmrService implements ICmrService {
 	 */
 	public void setSerializationManagerProvider(SerializationManagerProvider serializationManagerProvider) {
 		this.serializationManagerProvider = serializationManagerProvider;
+	}
+	
+	/**
+	 * Sets {@link #remoteInvocationFactory}.
+	 * 
+	 * @param remoteInvocationFactory
+	 * 			  New value for {@link #remoteInvocationFactory}
+	 */
+	public void setRemoteInvocationFactory(RemoteInvocationFactory remoteInvocationFactory) {
+		this.remoteInvocationFactory = remoteInvocationFactory;
+	}
+
+	/**
+	 * Gets {@link #defaultValueOnError}.
+	 * 
+	 * @return {@link #defaultValueOnError}
+	 */
+	public boolean isDefaultValueOnError() {
+		return defaultValueOnError;
+	}
+
+	/**
+	 * Sets {@link #defaultValueOnError}.
+	 * 
+	 * @param defaultValueOnError
+	 *            New value for {@link #defaultValueOnError}
+	 */
+	public void setDefaultValueOnError(boolean defaultValueOnError) {
+		this.defaultValueOnError = defaultValueOnError;
 	}
 
 }

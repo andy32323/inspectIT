@@ -30,9 +30,11 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Storage service implementation.
@@ -160,6 +162,7 @@ public class StorageService implements IStorageService {
 	 */
 	@MethodLog
 	public List<StorageData> getExistingStorages() {
+		log.info("User: " + SecurityUtils.getSubject().getPrincipal());
 		return storageManager.getExistingStorages();
 	}
 
@@ -344,6 +347,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public StorageData addLabelToStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel, boolean doOverwrite) throws BusinessException {
 		try {
@@ -360,6 +364,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public StorageData addLabelsToStorage(StorageData storageData, Collection<AbstractStorageLabel<?>> storageLabels, boolean doOverwrite) throws BusinessException {
 		try {
@@ -378,6 +383,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public StorageData removeLabelFromStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel) throws BusinessException {
 		try {
@@ -393,6 +399,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public StorageData removeLabelsFromStorage(StorageData storageData, List<AbstractStorageLabel<?>> storageLabelList) throws BusinessException {
 		try {
@@ -410,6 +417,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public void executeLabelManagementActions(Collection<AbstractLabelManagementAction> managementActions) throws BusinessException {
 		for (AbstractLabelManagementAction managementAction : managementActions) {
@@ -449,6 +457,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public void saveLabelToCmr(AbstractStorageLabel<?> storageLabel) {
 		storageLabelDataDao.saveLabel(storageLabel);
@@ -457,6 +466,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public void saveLabelsToCmr(Collection<AbstractStorageLabel<?>> storageLabels) {
 		for (AbstractStorageLabel<?> label : storageLabels) {
@@ -468,6 +478,7 @@ public class StorageService implements IStorageService {
 	 * {@inheritDoc}
 	 * 
 	 */
+	@Transactional
 	@MethodLog
 	public void removeLabelFromCmr(AbstractStorageLabel<?> storageLabel, boolean removeFromStoragesAlso) throws BusinessException {
 		storageLabelDataDao.removeLabel(storageLabel);
@@ -482,6 +493,7 @@ public class StorageService implements IStorageService {
 	 * {@inheritDoc}
 	 * 
 	 */
+	@Transactional
 	@MethodLog
 	public void removeLabelsFromCmr(Collection<AbstractStorageLabel<?>> storageLabels, boolean removeFromStoragesAlso) throws BusinessException {
 		storageLabelDataDao.removeLabels(storageLabels);
@@ -495,6 +507,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public void saveLabelType(AbstractStorageLabelType<?> labelType) {
 		storageLabelDataDao.saveLabelType(labelType);
@@ -503,6 +516,7 @@ public class StorageService implements IStorageService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Transactional
 	@MethodLog
 	public void removeLabelType(AbstractStorageLabelType<?> labelType) throws BusinessException {
 		storageLabelDataDao.removeLabelType(labelType);

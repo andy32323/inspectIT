@@ -1,6 +1,5 @@
 package info.novatec.inspectit.cmr.service;
 
-import java.io.Serializable;
 import java.util.List;
 
 import info.novatec.inspectit.communication.data.cmr.Permission;
@@ -14,6 +13,7 @@ import info.novatec.inspectit.communication.data.cmr.User;
  * @author Clemens Geibel
  * @author Lucca Hellriegel
  * @author Joshua Hartmann
+ * @author Mario Rose
  */
 @ServiceInterface(exporter = ServiceExporterType.HTTP)
 public interface ISecurityService {
@@ -24,35 +24,22 @@ public interface ISecurityService {
 	 *            users password
 	 * @param email
 	 *            email
-	 * @return sessionId if the user was authenticated
+	 * @return whether the login was successful
 	 */
-	Serializable authenticate(String pw, String email);
+	boolean authenticate(String pw, String email);
 
 	/**
 	 * Ends the session.
 	 * 
-	 * @param sessionId
-	 *            Session id from the session to end
 	 */
-	void logout(Serializable sessionId);
+	void logout();
 
 	/**
-	 * Checks whether session of a specific sessionId exists.
+	 * Returns whether the user is authenticated.
 	 * 
-	 * @param sessionId
-	 *            The id to check.
-	 * @return Boolean whether the session exists.
+	 * @return Returns whether the user is authenticated.
 	 */
-	boolean existsSession(Serializable sessionId);
-
-	/**
-	 * Returns titles of permissions as Strings.
-	 * 
-	 * @param sessionId
-	 *            sessionId
-	 * @return List with the users permissions.
-	 */
-	List<String> getPermissions(Serializable sessionId);
+	boolean isAuthenticated();
 
 	// | ROLE | --------------
 	/**
@@ -61,10 +48,19 @@ public interface ISecurityService {
 	 * @param email
 	 *            email
 	 * @return a Role object with given Email of the user.
-	 * @throws AuthenticationException
-	 *             if the email was not found.
 	 */
 	Role getRoleOfUser(String email);
+
+	/**
+	 * Changes the description of the role, just a wrapper for
+	 * changeRoleAttributes.
+	 * 
+	 * @param role
+	 *            the role to be changed
+	 * @param newDescription
+	 *            the new description
+	 */
+	void changeRoleDescription(Role role, String newDescription);
 
 	/**
 	 * Searches for the Role matching a given ID.
@@ -83,28 +79,61 @@ public interface ISecurityService {
 	List<Role> getAllRoles();
 
 	/**
-	 * Adds a new Role to the CMR.
+	 * Method to add a new role.
 	 * 
-	 * @param title
-	 *            The title of the new role.
-	 * @param permissions
-	 *            The permissions assigned to this role.
-	 * @return The id of the created Role.
+	 * @param name
+	 *            Name of role.
+	 * @param rolePermissions
+	 *            Permissions of role in string-form.
+	 * @param description
+	 *            Description of the role.
 	 */
-	// int addRole(String title, List<Permission> permissions);
+	void addRole(String name, List<String> rolePermissions, String description);
+
+	/**
+	 * Method to edit the attributes of a role.
+	 * 
+	 * @param role
+	 *            the role to edit
+	 * @param newDescription
+	 *            new description of the role
+	 * @param newTitle
+	 *            new title of the role
+	 * @param newPermissions
+	 *            list of new permissions
+	 */
+	void changeRoleAttribute(Role role, String newTitle, String newDescription, List<Permission> newPermissions);
+
+	/**
+	 * Deletes the given Role Object from the Database.
+	 * 
+	 * @param role
+	 *            role
+	 */
+	void deleteRole(Role role);
 
 	// | USER |---------------
 	/**
-	 * We only want to send the user emails to the client. If a user is about to be modified, other
-	 * data will be retrieved.
+	 * We only want to send the user emails to the client. If a user is about to
+	 * be modified, other data will be retrieved.
 	 * 
 	 * @return An List containing all user emails
 	 */
 	List<String> getAllUsers();
 
 	/**
-	 * Adds a new User to the Database. Throws an exception, if there is an existing registered User
-	 * with the given email-address. Throws an exception, if the given role-id does not exist.
+	 * Should return all the users with the given roleID.
+	 * 
+	 * @param id
+	 *            Given roleID.
+	 * @return List<String> Found User by email.
+	 */
+	List<String> getUsersByRole(long id);
+
+	/**
+	 * Adds a new User to the Database. Throws an exception, if there is an
+	 * existing registered User with the given email-address. Throws an
+	 * exception, if the given role-id does not exist.
 	 * 
 	 * @param user
 	 *            user
@@ -129,16 +158,42 @@ public interface ISecurityService {
 	void deleteUser(User user);
 
 	/**
-	 * Change any attribute of a User. Email cannot be changed.
 	 * 
-	 * @param user
-	 *            user
+	 * @param userOld
+	 *            the user that is edited
+	 * @param email
+	 *            the new email
+	 * @param password
+	 *            the new password
+	 * @param roleID
+	 *            the new roleID
+	 * @param passwordChanged
+	 *            boolean to see if password was changed and needs to be hashed
+	 * @param isLocked
+	 *            boolean to see if user was locked by admin
 	 */
-	void changeUserAttribute(User user);
+	void changeUserAttribute(User userOld, String email, String password, long roleID, boolean passwordChanged,
+			boolean isLocked);
 
 	// | PERMISSION |---------
+
 	/**
-	 * Change the description of a Permission. Other changes should not be possible.
+	 * Changes all Attributes of the given Permission.
+	 * 
+	 * @param perm
+	 *            The Permission to be modified.
+	 * @param newTitle
+	 *            The new title of the permission.
+	 * @param newDescription
+	 *            The new description of the permission.
+	 * @param newParamter
+	 *            The new parameter of the permission.
+	 */
+	void changePermissionAttributes(Permission perm, String newTitle, String newDescription, String newParamter);
+
+	/**
+	 * Change the description of a Permission. Other changes should not be
+	 * possible, just a wrapper for changePermissionAttributes.
 	 * 
 	 * @param permission
 	 *            permission
@@ -153,12 +208,16 @@ public interface ISecurityService {
 	List<Permission> getAllPermissions();
 
 	/**
-	 * Method to add a new role.
-	 * @param name
-	 * 				Name of role.
-	 * @param rolePermissions
-	 * 				Permissions of role in string-form.
+	 * Returns titles of permissions as Strings.
+	 * 
+	 * @return List with the users permissions.
 	 */
-	void addRole(String name, List<String> rolePermissions);
-}
+	List<Permission> getPermissions();
 
+	/**
+	 * Database reset and all users logout.
+	 * 
+	 */
+	void resetDB();
+
+}

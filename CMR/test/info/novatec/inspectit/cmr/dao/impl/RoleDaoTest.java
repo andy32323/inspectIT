@@ -5,8 +5,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.List;
-
 import info.novatec.inspectit.cmr.dao.RoleDao;
 import info.novatec.inspectit.cmr.test.AbstractTransactionalTestNGLogSupport;
 import info.novatec.inspectit.communication.data.cmr.Role;
@@ -17,6 +15,7 @@ import org.testng.annotations.Test;
 
 @ContextConfiguration(locations = { "classpath:spring/spring-context-global.xml", "classpath:spring/spring-context-database.xml", "classpath:spring/spring-context-beans.xml",
 		"classpath:spring/spring-context-processors.xml", "classpath:spring/spring-context-storage-test.xml" })
+@SuppressWarnings("PMD")
 public class RoleDaoTest extends AbstractTransactionalTestNGLogSupport {
 
 	@Autowired
@@ -27,23 +26,12 @@ public class RoleDaoTest extends AbstractTransactionalTestNGLogSupport {
 	 */
 	@Test
 	public void saveAndDeleteRole() {
-        Role role1 = new Role(1, "Normal-User", null);
-        Role role2 = new Role(2, "Power-User", null);
+        Role role1 = new Role(1, "Normal-User", null, "");
+        Role role2 = new Role(2, "Power-User", null, "");
 
         roleDao.saveOrUpdate(role1);
         roleDao.saveOrUpdate(role2);
-        Long id1 = role1.getId();
-        Long id2 = role2.getId();
 
-        System.out.println(id1);
-        System.out.println(id2);
-        
-        List<Role> roles = roleDao.loadAll();
-        
-        for(Role r : roles){
-            System.out.println(r.getId());
-        }
-        
         assertThat(role1.getId(), is(greaterThan(0L)));
 
         roleDao.delete(role1);

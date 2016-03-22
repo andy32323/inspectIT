@@ -192,7 +192,10 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 		createHeadClient();
 		toolkit.decorateFormHeading(mainForm);
 
+		int borderStyle = toolkit.getBorderStyle();
+		toolkit.setBorderStyle(SWT.NULL);
 		Tree tree = toolkit.createTree(mainForm.getBody(), SWT.V_SCROLL | SWT.H_SCROLL);
+		toolkit.setBorderStyle(borderStyle);
 		treeViewer = new DeferredTreeViewer(tree);
 		treeViewer.setContentProvider(new TreeContentProvider());
 		treeViewer.setLabelProvider(new TreeLabelProvider());
@@ -283,6 +286,14 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 			}
 		});
 		try {
+			//Check if displayedRepositoryDefinition is CmrRepositoryManager and then check if it has permission for agents
+			boolean hasPermissionforAgents = false;
+			if (displayedRepositoryDefinition instanceof CmrRepositoryDefinition) {
+				hasPermissionforAgents = ((CmrRepositoryDefinition) displayedRepositoryDefinition).hasPermission("cmrLookAtAgentsPermission");
+				} else { 
+					hasPermissionforAgents = true;
+				}
+			if (hasPermissionforAgents) {
 			if (null != agent && CollectionUtils.isNotEmpty(availableAgents) && availableAgents.contains(agent)) {
 				displayedAgent = displayedRepositoryDefinition.getGlobalDataAccessService().getCompleteAgent(agent.getId());
 				PreferencesUtils.saveLongValue(PreferencesConstants.LAST_SELECTED_AGENT, agent.getId().longValue(), false);
@@ -291,6 +302,7 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 				displayedAgent = displayedRepositoryDefinition.getGlobalDataAccessService().getCompleteAgent(agent.getId());
 			} else {
 				displayedAgent = null; // NOPMD
+			}
 			}
 		} catch (BusinessException e) {
 			InspectIT.getDefault().createErrorDialog("Exception occurred trying to load the agent tree for the agent " + agent.getAgentName() + ".", e, -1);
@@ -475,7 +487,7 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 				CmrRepositoryDefinition cmrRepositoryDefinition = (CmrRepositoryDefinition) displayedRepositoryDefinition;
 				mainForm.setImage(ImageFormatter.getCmrRepositoryImage(cmrRepositoryDefinition, true));
 				mainForm.setText(cmrRepositoryDefinition.getName());
-				mainForm.setToolTipText(getCmrRepositoryDescription(cmrRepositoryDefinition));
+				mainForm.setToolTipText(TextFormatter.getCmrRepositoryDescription(cmrRepositoryDefinition));
 			} else if (displayedRepositoryDefinition instanceof StorageRepositoryDefinition) {
 				StorageRepositoryDefinition storageRepositoryDefinition = (StorageRepositoryDefinition) displayedRepositoryDefinition;
 				mainForm.setImage(ImageFormatter.getStorageRepositoryImage(storageRepositoryDefinition));
@@ -729,10 +741,11 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 	 */
 	public void repositoryAgentDeleted(CmrRepositoryDefinition cmrRepositoryDefinition, PlatformIdent agent) {
 		if (ObjectUtils.equals(cmrRepositoryDefinition, displayedRepositoryDefinition)) {
-			if (ObjectUtils.equals(agent, displayedAgent)) {
-				displayedAgent = null; // NOPMD
-			}
 			availableAgents.remove(agent);
+			if (ObjectUtils.equals(agent, displayedAgent)) {
+				selectAgentForDisplay(null);
+			}
+
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -853,17 +866,6 @@ public class DataExplorerView extends ViewPart implements CmrRepositoryChangeLis
 		} else {
 			return "Storage Repository - Accessible via CMR repository";
 		}
-	}
-
-	/**
-	 * Description of the {@link CmrRepositoryDefinition}.
-	 * 
-	 * @param cmrRepositoryDefinition
-	 *            {@link CmrRepositoryDefinition}.
-	 * @return Description in form http://ip:port
-	 */
-	private String getCmrRepositoryDescription(CmrRepositoryDefinition cmrRepositoryDefinition) {
-		return "Central Management Repository @ http://" + cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort();
 	}
 
 	/**

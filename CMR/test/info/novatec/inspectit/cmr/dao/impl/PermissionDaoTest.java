@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.List;
 
 import org.hibernate.StaleStateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import info.novatec.inspectit.communication.data.cmr.Permission;
 
 @ContextConfiguration(locations = { "classpath:spring/spring-context-global.xml", "classpath:spring/spring-context-database.xml", "classpath:spring/spring-context-beans.xml",
 		"classpath:spring/spring-context-processors.xml", "classpath:spring/spring-context-storage-test.xml" })
+@SuppressWarnings("PMD")
 public class PermissionDaoTest extends AbstractTransactionalTestNGLogSupport {
 
 	@Autowired
@@ -33,18 +33,12 @@ public class PermissionDaoTest extends AbstractTransactionalTestNGLogSupport {
 		Permission permission1 = new Permission("aPermission", "");
 
 		permissionDao.saveOrUpdate(permission1);
-
-		List<Permission> mylist = permissionDao.loadAll();
-		
-		for(Permission p : mylist){
-			System.out.println(p);
-		}
-		
+				
 		assertThat(permission1.getId(), is(greaterThan(0L)));
 
 		permissionDao.delete(permission1);
 
-		assertThat(permissionDao.findOneByExample(permission1), is(nullValue()));
+		assertThat(permissionDao.findByTitle(permission1.getTitle()), is(nullValue()));
 	}
 	/**
 	 * Trying to insert permissions with different ids but same titles should fail.
@@ -74,7 +68,7 @@ public class PermissionDaoTest extends AbstractTransactionalTestNGLogSupport {
 		
 		permissionDao.saveOrUpdate(p1);
 		
-		Permission p2 = permissionDao.load(p1.getId());
+		Permission p2 = permissionDao.findById(p1.getId());
 
 		assertThat(p2.getTitle(), is(equalTo("A new Title")));
 		assertThat(p2.getDescription(), is(equalTo("A new Description")));

@@ -4,8 +4,6 @@ import info.novatec.inspectit.communication.data.cmr.User;
 
 import java.util.List;
 
-import org.springframework.orm.hibernate3.HibernateTemplate;
-
 /**
  * This DAO is used to handle all {@link User} objects.
  * 
@@ -14,33 +12,23 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * 
  */
 public interface UserDao {
-
-	/**
-	 * Load a specific {@link User} from the underlying storage by passing the email.
-	 * 
-	 * @param email
-	 *            The email of the User.
-	 * @return The found {@link User} object.
-	 */
-	User load(String email);
-
 	/**
 	 * Get User by Email-Address.
-	 * @param email email
+	 * 
+	 * @param email
+	 *            email
 	 * @return a User object with matching Email-Address.
 	 */
-	List<User> findByEmail(String email);
+	User findByEmail(String email);
 
 	/**
-	 * Execute a findByExample query against the underlying storage.
+	 * Get User by Role.
 	 * 
-	 * @param user
-	 *            The {@link User} object which serves as the example.
-	 * @return The list of {@link User} objects which have the same contents as the passed
-	 *         example object.
-	 * @see HibernateTemplate#findByExample(Object)
+	 * @param roleId
+	 *            roleId
+	 * @return a User object with matching Role.
 	 */
-	List<User> findByExample(User user);
+	List<User> findByRole(long roleId);
 
 	/**
 	 * Saves or updates this {@link User} in the underlying storage.
@@ -67,10 +55,10 @@ public interface UserDao {
 	void deleteAll(List<User> users);
 
 	/**
-	 * Returns all {@link User} objects which are saved in the underlying storage.
+	 * Returns all {@link User} objects which are saved in the underlying
+	 * storage.
 	 * 
 	 * @return Returns all stored {@link User} objects.
 	 */
 	List<User> loadAll();
-
 }
