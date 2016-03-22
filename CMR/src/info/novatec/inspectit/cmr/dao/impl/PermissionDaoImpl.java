@@ -2,6 +2,7 @@ package info.novatec.inspectit.cmr.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import info.novatec.inspectit.communication.data.cmr.Permission;
  * The default implementation of the {@link PermissionDao} interface by using the Entity Manager.
  * @author Joshua Hartmann
  * @author Andreas Herzog
+ * @author Lucca Hellriegel
  * 
  */
 @Repository
@@ -29,7 +31,8 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>  implements Pe
 	 */
 	@Override
 	public void delete(Permission permission) {
-		super.delete(permission);
+		EntityManager em = getEntityManager();
+		em.remove(em.getReference(Permission.class, permission.getId()));
 	}
 
 	/**

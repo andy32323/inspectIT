@@ -198,4 +198,11 @@ public interface ISecurityService {
 	 */
 	List<Permission> getPermissions();
 
+
+	/**
+	 * Database reset and all users logout.
+	 * 
+	 */
+	void resetDB();
+
 }
