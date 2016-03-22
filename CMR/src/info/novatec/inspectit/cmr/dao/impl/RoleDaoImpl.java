@@ -11,14 +11,16 @@ import info.novatec.inspectit.cmr.dao.RoleDao;
 import info.novatec.inspectit.communication.data.cmr.Role;
 
 /**
- * The default implementation of the {@link RoleDao} interface by using the Entity Manager.
+ * The default implementation of the {@link RoleDao} interface by using the
+ * Entity Manager.
+ * 
  * @author Joshua Hartmann
  * @author Andreas Herzog
  * @author Lucca Hellriegel
  * 
  */
 @Repository
-public class RoleDaoImpl extends AbstractJpaDao<Role> implements RoleDao {
+public class RoleDaoImpl extends AbstractJpaDao<Role>implements RoleDao {
 	/**
 	 * Default constructor.
 	 */
@@ -48,7 +50,7 @@ public class RoleDaoImpl extends AbstractJpaDao<Role> implements RoleDao {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override	
+	@Override
 	public List<Role> loadAll() {
 		return getEntityManager().createNamedQuery(Role.FIND_ALL, Role.class).getResultList();
 	}
@@ -58,20 +60,26 @@ public class RoleDaoImpl extends AbstractJpaDao<Role> implements RoleDao {
 	 */
 	@Override
 	public Role findByTitle(String title) {
-		TypedQuery<Role> query = getEntityManager().createNamedQuery(Role.FIND_BY_TITLE, Role.class);		
-		query.setParameter("title", title);		
-		List<Role> results = query.getResultList();		
+		TypedQuery<Role> query = getEntityManager().createNamedQuery(Role.FIND_BY_TITLE, Role.class);
+		query.setParameter("title", title);
+		List<Role> results = query.getResultList();
+		if (results.isEmpty()) {
+			return null;
+		}
 		return results.get(0);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Role findByID(long id) {
-		TypedQuery<Role> query = getEntityManager().createNamedQuery(Role.FIND_BY_ID, Role.class);		
-		query.setParameter("id", id);		
-		List<Role> results = query.getResultList();		
+		TypedQuery<Role> query = getEntityManager().createNamedQuery(Role.FIND_BY_ID, Role.class);
+		query.setParameter("id", id);
+		List<Role> results = query.getResultList();
+		if (results.isEmpty()) {
+			return null;
+		}
 		return results.get(0);
 	}
 
