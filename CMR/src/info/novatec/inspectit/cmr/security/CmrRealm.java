@@ -53,10 +53,9 @@ public class CmrRealm extends AuthorizingRealm {
 
 		User foundUser = userDao.findByEmail(email);
 		if (foundUser == null) {
-			//System.out.println("user not found");
 			throw new AuthenticationException("An Error occurred while logging into the cmr.");
-		} else if (!foundUser.getPassword().equals(pw)) { //TODO look out for correct hashing //changed from: Permutation.hashString(pw)
-			//System.out.println(foundUser.getPassword() + " " + pw);
+		} else if (!foundUser.getPassword().equals(pw)) {
+
 			throw new AuthenticationException("An Error occurred while logging into the cmr.");
 		}
 

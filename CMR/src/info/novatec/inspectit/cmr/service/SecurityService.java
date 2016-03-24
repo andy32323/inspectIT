@@ -107,9 +107,6 @@ public class SecurityService implements ISecurityService {
 	 */
 	@Override
 	public boolean authenticate(byte[] encryptedRandomKey, byte[] secondEncryptionLevel, String email) {
-		/*if (encryptedRandomKey == null || secondEncryptionLevel == null) {
-			return false;
-		}*/
 		String pw;
 		try {
 			pw = Permutation.decryptPassword(encryptedRandomKey, secondEncryptionLevel, keyPair.getPrivate().getEncoded());
