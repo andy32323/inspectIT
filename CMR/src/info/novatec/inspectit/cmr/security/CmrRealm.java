@@ -3,7 +3,6 @@ package info.novatec.inspectit.cmr.security;
 import info.novatec.inspectit.cmr.dao.RoleDao;
 import info.novatec.inspectit.cmr.dao.UserDao;
 import info.novatec.inspectit.communication.data.cmr.Permission;
-import info.novatec.inspectit.communication.data.cmr.Permutation;
 import info.novatec.inspectit.communication.data.cmr.Role;
 import info.novatec.inspectit.communication.data.cmr.User;
 import info.novatec.inspectit.spring.logger.Log;
@@ -54,8 +53,10 @@ public class CmrRealm extends AuthorizingRealm {
 
 		User foundUser = userDao.findByEmail(email);
 		if (foundUser == null) {
+			//System.out.println("user not found");
 			throw new AuthenticationException("An Error occurred while logging into the cmr.");
-		} else if (!foundUser.getPassword().equals(Permutation.hashString(pw))) {
+		} else if (!foundUser.getPassword().equals(pw)) { //TODO look out for correct hashing //changed from: Permutation.hashString(pw)
+			//System.out.println(foundUser.getPassword() + " " + pw);
 			throw new AuthenticationException("An Error occurred while logging into the cmr.");
 		}
 

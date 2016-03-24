@@ -1,5 +1,8 @@
 package info.novatec.inspectit.cmr.service;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +30,7 @@ import info.novatec.inspectit.communication.data.cmr.Permutation;
 import info.novatec.inspectit.communication.data.cmr.Role;
 import info.novatec.inspectit.communication.data.cmr.User;
 import info.novatec.inspectit.spring.logger.Log;
+import info.novatec.inspectit.util.PermutationException;
 
 /**
  * Provides general security-system operations for client<->cmr interaction.
@@ -71,6 +75,11 @@ public class SecurityService implements ISecurityService {
 	 */
 	@Autowired
 	RoleDao roleDao;
+	
+	/**
+	 * KeyPair.
+	 */
+	private KeyPair keyPair;
 
 	/**
 	 * Is executed after dependency injection is done to perform any
@@ -78,6 +87,12 @@ public class SecurityService implements ISecurityService {
 	 */
 	@PostConstruct
 	public void postConstruct() {
+		try {
+			setKeyPair();
+		} catch (NoSuchAlgorithmException nsaEx) {
+			log.info(nsaEx.getMessage());
+		}
+		
 		if (log.isInfoEnabled()) {
 			log.info("|-Security Service active...");
 		}
@@ -88,21 +103,27 @@ public class SecurityService implements ISecurityService {
 	// +-------------------------------------------------------------------------------------------+
 
 	/**
-	 * Authentication via the CmrSecurityManager.
-	 * 
-	 * @param pw
-	 *            users password
-	 * @param email
-	 *            email
-	 * @return whether the login was successful
+	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean authenticate(String pw, String email) {
+	public boolean authenticate(byte[] encryptedRandomKey, byte[] secondEncryptionLevel, String email) {
+		/*if (encryptedRandomKey == null || secondEncryptionLevel == null) {
+			return false;
+		}*/
+		String pw;
+		try {
+			pw = Permutation.decryptPassword(encryptedRandomKey, secondEncryptionLevel, keyPair.getPrivate().getEncoded());
+		} catch (Exception e) {
+			log.info(e.getMessage());
+			return false;
+		}
+		
 		UsernamePasswordToken token = new UsernamePasswordToken(email, pw);
 
 		Subject currentUser = SecurityUtils.getSubject();
 
-		if (userDao.findByEmail(email).isLocked()) {
+		User user = userDao.findByEmail(email);
+		if (user == null || user.isLocked()) {
 			return false;
 		}
 
@@ -119,6 +140,29 @@ public class SecurityService implements ISecurityService {
 		}
 
 		return true;
+	}
+	
+	
+	/**
+	 * 
+	 * @param symmetricKey
+	 * @return
+	 * @throws Exception 
+	 */
+	@Override
+	public byte[] callPublicKey(byte[] symmetricKey) throws PermutationException {
+		byte[] encryptedPublicKey = Permutation.encryptPublicKey(keyPair.getPublic(), symmetricKey);
+		return encryptedPublicKey;
+	}
+	
+	/**
+	 * Initializes the public/private keys.
+	 * @throws NoSuchAlgorithmException if RSA not available.
+	 */
+	private void setKeyPair() throws NoSuchAlgorithmException {
+		KeyPairGenerator generator = KeyPairGenerator.getInstance(Permutation.ASYMMETRIC_ALGORITHM);
+		generator.initialize(Permutation.ASYMMETRIC_KEY_SIZE);
+	    this.keyPair = generator.generateKeyPair();
 	}
 
 	/**
