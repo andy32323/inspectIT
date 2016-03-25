@@ -2,6 +2,7 @@ package info.novatec.inspectit.cmr.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
@@ -11,26 +12,31 @@ import info.novatec.inspectit.cmr.dao.UserDao;
 import info.novatec.inspectit.communication.data.cmr.User;
 
 /**
- * The default implementation of the {@link UserDao} interface by using the Entity Manager.
+ * The default implementation of the {@link UserDao} interface by using the
+ * Entity Manager.
+ * 
  * @author Joshua Hartmann
  * @author Andreas Herzog
+ * @author Lucca Hellriegel
  * 
  */
 @Repository
-public class UserDaoImpl extends AbstractJpaDao<User> implements UserDao {	
+public class UserDaoImpl extends AbstractJpaDao<User>implements UserDao {
 	/**
 	 * Default constructor.
 	 */
 	public UserDaoImpl() {
 		super(User.class);
-	}	
-	
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void delete(User user) {
-		super.delete(user);
+		EntityManager em = getEntityManager();
+		em.remove(em.getReference(User.class, user.getId()));
+
 	}
 
 	/**
@@ -46,22 +52,25 @@ public class UserDaoImpl extends AbstractJpaDao<User> implements UserDao {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override	
+	@Override
 	public List<User> loadAll() {
 		return getEntityManager().createNamedQuery(User.FIND_ALL, User.class).getResultList();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public User findByEmail(String email) {
-		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_EMAIL, User.class);		
-		query.setParameter("email", email);		
-		List<User> results = query.getResultList();		
+		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_EMAIL, User.class);
+		query.setParameter("email", email);
+		List<User> results = query.getResultList();
+		if (results.isEmpty()) {
+			return null;
+		}
 		return results.get(0);
-	}	
-	
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -73,14 +82,14 @@ public class UserDaoImpl extends AbstractJpaDao<User> implements UserDao {
 		} else {
 			super.update(user);
 		}
-	}	
-	
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<User> findByRole(long roleId) {
-		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_EMAIL, User.class);
+		TypedQuery<User> query = getEntityManager().createNamedQuery(User.FIND_BY_ROLE_ID, User.class);
 		query.setParameter("roleId", roleId);
 		List<User> results = query.getResultList();
 		return results;

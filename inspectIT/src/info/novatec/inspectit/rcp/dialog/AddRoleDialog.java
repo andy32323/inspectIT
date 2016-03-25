@@ -44,7 +44,6 @@ public class AddRoleDialog extends TitleAreaDialog {
 	 */
 	private Text roleNameBox;
 
-
 	/**
 	 * Role-description text box.
 	 */
@@ -68,12 +67,12 @@ public class AddRoleDialog extends TitleAreaDialog {
 	/**
 	 * List of permissions that the current user can give to the new role.
 	 */
-	private List<String> grantedPermissionsStrings = new ArrayList<String>();
+	private List<String> allPermissionsStrings = new ArrayList<String>();
 
 	/**
 	 * Array of buttons to display the permissions that can be granted.
 	 */
-	private Button[] grantedPermissionsButtons;
+	private Button[] allPermissionsButtons;
 
 	/**
 	 * Default constructor.
@@ -127,18 +126,18 @@ public class AddRoleDialog extends TitleAreaDialog {
 		roleDescriptionBoxLabel.setText("Description:");
 		roleDescriptionBox = new Text(main, SWT.BORDER);
 		roleDescriptionBox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		Label textPermissionLabel = new Label(main, SWT.NONE);
 		textPermissionLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 2, 5));
 		textPermissionLabel.setText("Mark the permissions, that the new role should have:");
-		List<Permission> grantedPermissions = cmrRepositoryDefinition.getGrantedPermissions();
-		for (int i = 0; i < grantedPermissions.size(); i++) {
-			this.grantedPermissionsStrings.add(grantedPermissions.get(i).getTitle());
-			}
-		this.grantedPermissionsButtons = new Button[grantedPermissionsStrings.size()];
-		for (int i = 0; i < grantedPermissionsStrings.size(); i++) {
-			grantedPermissionsButtons[i] = new Button(parent, SWT.CHECK);
-			grantedPermissionsButtons[i].setText(grantedPermissionsStrings.get(i));
+		List<Permission> allPermissions = cmrRepositoryDefinition.getSecurityService().getAllPermissions();
+		for (int i = 0; i < allPermissions.size(); i++) {
+			this.allPermissionsStrings.add(allPermissions.get(i).getTitle());
+		}
+		this.allPermissionsButtons = new Button[allPermissionsStrings.size()];
+		for (int i = 0; i < allPermissionsStrings.size(); i++) {
+			allPermissionsButtons[i] = new Button(parent, SWT.CHECK);
+			allPermissionsButtons[i].setText(allPermissionsStrings.get(i));
 		}
 
 		ModifyListener modifyListener = new ModifyListener() {
@@ -153,7 +152,7 @@ public class AddRoleDialog extends TitleAreaDialog {
 		};
 
 		roleNameBox.addModifyListener(modifyListener);
-		
+
 		return main;
 	}
 
@@ -192,9 +191,9 @@ public class AddRoleDialog extends TitleAreaDialog {
 
 		String name = roleNameBox.getText();
 		List<String> rolePermissions = new ArrayList<String>();
-		for (int i = 0; i < grantedPermissionsStrings.size(); i++) {
-			if (grantedPermissionsButtons[i].getSelection()) {
-				rolePermissions.add(grantedPermissionsStrings.get(i));
+		for (int i = 0; i < allPermissionsStrings.size(); i++) {
+			if (allPermissionsButtons[i].getSelection()) {
+				rolePermissions.add(allPermissionsStrings.get(i));
 			}
 		}
 		String similarRoles = "";
@@ -210,15 +209,16 @@ public class AddRoleDialog extends TitleAreaDialog {
 		}
 
 		if (!"".equals(similarRoles)) {
-			String warning = "One or more roles with the same set of permissions already exists." + "\n" + "\nDetected roles: " + similarRoles.substring(0, similarRoles.length() - 2) + "\n" 
+			String warning = "One or more roles with the same set of permissions already exists." + "\n"
+					+ "\nDetected roles: " + similarRoles.substring(0, similarRoles.length() - 2) + "\n"
 					+ "\nDo you really want to add the role \"" + name + "\"?";
 			Boolean confirm = MessageDialog.openConfirm(null, "Similar role already exists!", warning);
 			if (!confirm) {
 				return;
-					
+
 			}
 		}
-		
+
 		cmrRepositoryDefinition.getSecurityService().addRole(name, rolePermissions, roleDescriptionBox.getText());
 		okPressed();
 	}
