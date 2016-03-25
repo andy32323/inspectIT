@@ -68,7 +68,7 @@ public class SecurityService implements ISecurityService {
 	 * Manager for general security purposes.
 	 */
 	@Autowired
-	CmrSecurityManager cmrSecurityManager;
+	CmrSecurityManager securityManager;
 
 	/**
 	 * Data Access Object.
@@ -141,10 +141,10 @@ public class SecurityService implements ISecurityService {
 	
 	
 	/**
-	 * 
-	 * @param symmetricKey
-	 * @return
-	 * @throws Exception 
+	 * First Step of the modified login process.
+	 * @param secretKeyBytes symmetricKey
+	 * @return symmetrically encrypted public key
+	 * @throws PermutationException 
 	 */
 	@Override
 	public byte[] callPublicKey(byte[] symmetricKey) throws PermutationException {
@@ -180,7 +180,7 @@ public class SecurityService implements ISecurityService {
 	}
 
 	/**
-	 * Returns titles of permissions as Strings.
+	 * Returns list of permissions.
 	 * 
 	 * @return List with the users permissions.
 	 */
@@ -229,6 +229,10 @@ public class SecurityService implements ISecurityService {
 	// | USER |---------------
 	@Override
 	public List<String> getAllUsers() {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return new ArrayList<String>();
+		}
+		
 		List<User> users = userDao.loadAll();
 		List<String> userEmails = new ArrayList<String>();
 		for (User user : users) {
@@ -240,6 +244,10 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public List<String> getUsersByRole(long id) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return new ArrayList<String>();
+		}
+		
 		List<User> foundUsers = userDao.findByRole(id);
 		List<String> userEmails = new ArrayList<String>();
 		for (User user : foundUsers) {
@@ -251,6 +259,10 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public void addUser(User user) throws DataIntegrityViolationException {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		if (!checkDataIntegrity(user)) {
 			throw new DataIntegrityViolationException("Data integrity test failed!");
 		}
@@ -269,11 +281,19 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public User getUser(String email) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return null;
+		}
+		
 		return userDao.findByEmail(email);
 	}
 
 	@Override
 	public void deleteUser(User user) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		Subject currentUser = SecurityUtils.getSubject();
 		String currentName = (String) currentUser.getPrincipal();
 		if (currentName.equals(user.getEmail())) {
@@ -285,6 +305,10 @@ public class SecurityService implements ISecurityService {
 	@Override
 	public void changeUserAttribute(User userOld, String email, String password, long roleID, boolean passwordChanged,
 			boolean isLocked) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		Subject currentUser = SecurityUtils.getSubject();
 		String currentName = (String) currentUser.getPrincipal();
 		if (currentName.equals(userOld.getEmail())) {
@@ -315,6 +339,10 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public void changePermissionDescription(Permission permission) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		changePermissionAttributes(permission, permission.getTitle(), permission.getDescription(),
 				permission.getParameter());
 	}
@@ -322,6 +350,10 @@ public class SecurityService implements ISecurityService {
 	@Override
 	public void changePermissionAttributes(Permission perm, String newTitle, String newDescription,
 			String newParamter) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		perm.setTitle(newTitle);
 		perm.setDescription(newDescription);
 		perm.setParameter(newParamter);
@@ -331,12 +363,20 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public List<Permission> getAllPermissions() {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return new ArrayList<Permission>();
+		}
+		
 		return permissionDao.loadAll();
 	}
 
 	// | ROLE | --------------
 	@Override
 	public Role getRoleByID(long id) throws DataRetrievalFailureException, DataIntegrityViolationException {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return null;
+		}
+		
 		Role roles = roleDao.findByID(id);
 
 		if (roles == null) {
@@ -348,6 +388,10 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public Role getRoleOfUser(String email) throws AuthenticationException, DataIntegrityViolationException {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return null;
+		}
+		
 		User foundUser = userDao.findByEmail(email);
 
 		if (foundUser == null) {
@@ -359,12 +403,20 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public List<Role> getAllRoles() {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return new ArrayList<Role>();
+		}
+		
 		return roleDao.loadAll();
 	}
 
 	@Override
 	public void addRole(String name, List<String> rolePermissions, String description)
 			throws DataIntegrityViolationException {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		List<Permission> allPermissions = getAllPermissions();
 		List<Permission> grantedPermissions = new ArrayList<Permission>();
 		for (int i = 0; i < rolePermissions.size(); i++) {
@@ -390,12 +442,20 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public void changeRoleDescription(Role role, String newDescription) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		changeRoleAttribute(role, role.getTitle(), newDescription, role.getPermissions());
 	}
 
 	@Override
 	public void changeRoleAttribute(Role role, String newTitle, String newDescription,
 			List<Permission> newPermissions) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		role.setTitle(newTitle);
 		role.setDescription(newDescription);
 		role.setPermissions(newPermissions);
@@ -404,16 +464,23 @@ public class SecurityService implements ISecurityService {
 
 	@Override
 	public void deleteRole(Role role) {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
+		
 		roleDao.delete(role);
 	}
 
 	@Override
 	public void resetDB() {
+		if (!securityManager.isPermitted("cmrAdministrationPermission")) {
+			return;
+		}
 
 		/**
 		 * All users logout.
 		 */
-		DefaultSessionManager sm = (DefaultSessionManager) cmrSecurityManager.getSessionManager();
+		DefaultSessionManager sm = (DefaultSessionManager) securityManager.getSessionManager();
 
 		for (Session session : sm.getSessionDAO().getActiveSessions()) {
 			new Subject.Builder().session(session).buildSubject().logout();
@@ -424,7 +491,7 @@ public class SecurityService implements ISecurityService {
 		permissionDao.deleteAll(permissionDao.loadAll());
 
 		/**
-		 * copied from SecurityInitialization start()
+		 * copied from info.novatec.inspectit.cmr.security.SecurityInitialization start()
 		 */
 		if (permissionDao.loadAll().isEmpty()) {
 
