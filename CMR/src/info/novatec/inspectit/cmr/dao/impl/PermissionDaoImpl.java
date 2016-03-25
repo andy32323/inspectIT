@@ -32,15 +32,17 @@ public class PermissionDaoImpl extends AbstractJpaDao<Permission>implements Perm
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void delete(Permission permission) {
-		EntityManager em = getEntityManager();
-		em.remove(em.getReference(Permission.class, permission.getId()));
+		EntityManager em = getEntityManager();		
+		em.remove(em.merge(permission));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional
 	public void deleteAll(List<Permission> permissions) {
 		for (Permission permission : permissions) {
 			delete(permission);
