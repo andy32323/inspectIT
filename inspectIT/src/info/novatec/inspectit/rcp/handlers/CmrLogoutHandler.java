@@ -37,8 +37,7 @@ public class CmrLogoutHandler extends AbstractHandler implements IHandler {
 			if (selectedObject instanceof ICmrRepositoryProvider) {
 				cmrRepositoryDefinition = ((ICmrRepositoryProvider) selectedObject).getCmrRepositoryDefinition();
 			} else if (selectedObject instanceof ICmrRepositoryAndAgentProvider) {
-				cmrRepositoryDefinition = ((ICmrRepositoryAndAgentProvider) selectedObject)
-						.getCmrRepositoryDefinition();
+				cmrRepositoryDefinition = ((ICmrRepositoryAndAgentProvider) selectedObject).getCmrRepositoryDefinition();
 			}
 		}
 
@@ -48,11 +47,8 @@ public class CmrLogoutHandler extends AbstractHandler implements IHandler {
 				cmrRepositoryDefinition.logout();
 				
 				//Delete stored login data
-				PreferencesUtils.saveStringValue(
-						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "EMAIL", "",
-						false);
-				PreferencesUtils.saveStringValue(
-						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "PW", "", false);
+				PreferencesUtils.saveStringValue(cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "EMAIL", "", false);
+				PreferencesUtils.saveStringValue(cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "PW", "", false);
 
 				MessageDialog.openError(null, "Warning", "You logged out successfully.");
 			} else {
