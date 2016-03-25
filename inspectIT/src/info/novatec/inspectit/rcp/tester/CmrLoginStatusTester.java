@@ -41,10 +41,8 @@ public class CmrLoginStatusTester extends PropertyTester {
 			} else if ("LOGGEDOUT".equals(expectedValue)) {
 
 				//Check for stored login data
-				String email = PreferencesUtils.getStringValue(
-						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "EMAIL");
-				String password = PreferencesUtils.getStringValue(
-						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "PW");
+				String email = PreferencesUtils.getStringValue(cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "EMAIL");
+				String password = PreferencesUtils.getStringValue(cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "PW");
 				if (!"".equals(email)) {
 					cmrRepositoryDefinition.login(email, password);
 				}
