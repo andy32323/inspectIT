@@ -74,8 +74,7 @@ public class CmrLoginWizard extends Wizard implements INewWizard {
 				MessageDialog.openInformation(null, "Successfully authenticated at selected CMR",
 						"You are now logged in.");
 				if (cmrLoginWizardPage.shouldStayLoggedIn()) {
-					cmrRepositoryDefinition.stayLoggedIn(cmrLoginWizardPage.getMailBox().getText(),
-							cmrLoginWizardPage.getPasswordBox().getText());
+					cmrRepositoryDefinition.stayLoggedIn(cmrLoginWizardPage.getMailBox().getText(),	cmrLoginWizardPage.getPasswordBox().getText());
 				}
 			} else {
 				MessageDialog.openError(null, "Login failed",
