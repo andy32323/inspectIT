@@ -719,4 +719,19 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		}
 		return false; 
 	}
+
+	/**
+	 * Saves password and email to preferenceStore to make user able to stay
+	 * logged in.
+	 * 
+	 * @param email
+	 *            Email of user.
+	 * @param pw
+	 *            Password of user.
+	 */
+	public void stayLoggedIn(String email, String pw) {
+		PreferencesUtils.saveStringValue(this.ip + ":" + this.port + "EMAIL", email, false);
+		PreferencesUtils.saveStringValue(this.ip + ":" + this.port + "PW", pw, false);
+	}
+			
 }
