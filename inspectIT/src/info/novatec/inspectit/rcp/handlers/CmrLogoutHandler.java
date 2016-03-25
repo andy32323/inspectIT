@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import info.novatec.inspectit.rcp.preferences.PreferencesUtils;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryAndAgentProvider;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider;
 import info.novatec.inspectit.rcp.repository.CmrRepositoryDefinition;
@@ -36,7 +37,8 @@ public class CmrLogoutHandler extends AbstractHandler implements IHandler {
 			if (selectedObject instanceof ICmrRepositoryProvider) {
 				cmrRepositoryDefinition = ((ICmrRepositoryProvider) selectedObject).getCmrRepositoryDefinition();
 			} else if (selectedObject instanceof ICmrRepositoryAndAgentProvider) {
-				cmrRepositoryDefinition = ((ICmrRepositoryAndAgentProvider) selectedObject).getCmrRepositoryDefinition();
+				cmrRepositoryDefinition = ((ICmrRepositoryAndAgentProvider) selectedObject)
+						.getCmrRepositoryDefinition();
 			}
 		}
 
@@ -44,6 +46,14 @@ public class CmrLogoutHandler extends AbstractHandler implements IHandler {
 			cmrRepositoryDefinition.refreshLoginStatus();
 			if (LoginStatus.LOGGEDIN == cmrRepositoryDefinition.getLoginStatus()) {
 				cmrRepositoryDefinition.logout();
+				
+				//Delete stored login data
+				PreferencesUtils.saveStringValue(
+						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "EMAIL", "",
+						false);
+				PreferencesUtils.saveStringValue(
+						cmrRepositoryDefinition.getIp() + ":" + cmrRepositoryDefinition.getPort() + "PW", "", false);
+
 				MessageDialog.openError(null, "Warning", "You logged out successfully.");
 			} else {
 				MessageDialog.openError(null, "Logout failed", "You are not logged in.");
