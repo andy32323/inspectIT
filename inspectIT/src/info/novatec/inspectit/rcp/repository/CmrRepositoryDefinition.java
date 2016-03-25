@@ -17,6 +17,7 @@ import info.novatec.inspectit.cmr.service.cache.CachedDataService;
 import info.novatec.inspectit.communication.data.cmr.Permission;
 import info.novatec.inspectit.communication.data.cmr.Permutation;
 import info.novatec.inspectit.rcp.InspectIT;
+import info.novatec.inspectit.rcp.preferences.PreferencesUtils;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider;
 import info.novatec.inspectit.rcp.repository.service.RefreshEditorsCachedDataService;
 import info.novatec.inspectit.rcp.repository.service.cmr.CmrServiceProvider;
@@ -83,11 +84,11 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * The login status. LOGGEDIN in case a user is logged in on the CMR, otherwise LOGGEDOUT.
+	 * The login status. LOGGEDIN in case a user is logged in on the CMR,
+	 * otherwise LOGGEDOUT.
 	 */
 	private LoginStatus loginStatus = LoginStatus.LOGGEDOUT;
 
-	
 	/**
 	 * Enumeration for the online status of {@link CmrRepositoryDefinition}.
 	 * 
@@ -161,8 +162,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	private OnlineStatus onlineStatus;
 
 	/**
-	 * Key received from the serverStatusService for checking the validation of the registered IDs
-	 * on the CMR.
+	 * Key received from the serverStatusService for checking the validation of
+	 * the registered IDs on the CMR.
 	 */
 	private String registrationIdKey;
 
@@ -220,7 +221,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 * The {@link IGlobalDataAccessService}.
 	 */
 	private IGlobalDataAccessService globalDataAccessService;
-	
+
 	/**
 	 * The {@link IJmxDataAccessService}.
 	 */
@@ -235,7 +236,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 * The security service.
 	 */
 	private ISecurityService securityService;
-	
+
 	/**
 	 * The configuration interface service.
 	 */
@@ -244,7 +245,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	/**
 	 * CMR repository change listeners.
 	 */
-	private List<CmrRepositoryChangeListener> cmrRepositoryChangeListeners = new ArrayList<CmrRepositoryChangeListener>(1);
+	private List<CmrRepositoryChangeListener> cmrRepositoryChangeListeners = new ArrayList<CmrRepositoryChangeListener>(
+			1);
 
 	/**
 	 * Calls default constructor with name 'Undefined'.
@@ -259,7 +261,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * The default constructor of this class. The ip and port is mandatory to create the connection.
+	 * The default constructor of this class. The ip and port is mandatory to
+	 * create the connection.
 	 * 
 	 * @param ip
 	 *            The ip of the CMR.
@@ -288,7 +291,6 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		configurationInterfaceService = cmrServiceProvider.getConfigurationInterfaceService(this);
 		jmxDataAccessService = cmrServiceProvider.getJmxDataAccessService(this);
 		securityService = cmrServiceProvider.getSecurityService(this);
-		
 
 		cachedDataService = new RefreshEditorsCachedDataService(globalDataAccessService, this);
 	}
@@ -369,7 +371,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	public ISecurityService getSecurityService() {
 		return securityService;
 	}
-	
+
 	/**
 	 * Gets {@link #configurationInterfaceService}.
 	 * 
@@ -404,7 +406,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * Registers a CMR repository change listener to this CMR if it was not already.
+	 * Registers a CMR repository change listener to this CMR if it was not
+	 * already.
 	 * 
 	 * @param cmrRepositoryChangeListener
 	 *            {@link CmrRepositoryChangeListener}.
@@ -468,8 +471,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * If the CMR is online invokes the {@link IServerStatusService} to get the version. Otherwise
-	 * returns 'N/A'.
+	 * If the CMR is online invokes the {@link IServerStatusService} to get the
+	 * version. Otherwise returns 'N/A'.
 	 * 
 	 * @return Version of this CMR.
 	 */
@@ -490,7 +493,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 * 
 	 * @param newStatus
 	 *            New status.
-	 * @return True if change was successful, false if the change is not allowed.
+	 * @return True if change was successful, false if the change is not
+	 *         allowed.
 	 */
 	public boolean changeOnlineStatus(OnlineStatus newStatus) {
 		if (onlineStatus.canChangeTo(newStatus)) {
@@ -520,9 +524,11 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
-	 * Returns if the server is online by checking the {@link IServerStatusService}.
+	 * Returns if the server is online by checking the
+	 * {@link IServerStatusService}.
 	 * 
-	 * @return Returns if the server is online by checking the {@link IServerStatusService}.
+	 * @return Returns if the server is online by checking the
+	 *         {@link IServerStatusService}.
 	 */
 	private boolean isOnline() {
 		try {
@@ -612,7 +618,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	public String toString() {
 		return "Repository definition :: Name=" + name + " IP=" + ip + " Port=" + port;
 	}
-	
+
 	/**
 	 * Method to login on the CMR.
 	 * 
@@ -628,7 +634,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		String theHash = Permutation.hashString(password);
 		byte[] encryptedRandomKey = null;
 		byte[] secondEncryptionStep = null;
-		
+
 		try {
 			byte[] secretKey = Permutation.generateSecretKey();
 			byte[] encryptedPublicKey = securityService.callPublicKey(secretKey);
@@ -697,7 +703,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	private void setGrantedPermissions(List<Permission> list) {
 		this.grantedPermissions = list;
 	}
-	
+
 	public List<Permission> getGrantedPermissions() {
 		return this.grantedPermissions;
 	}
@@ -711,12 +717,27 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 */
 	public boolean hasPermission(String permission) {
 		if (this.grantedPermissions != null) {
-				for (int i = 0; i < grantedPermissions.size(); i++) {
-			if (grantedPermissions.get(i).getTitle().equals(permission)) {
-				return true;
+			for (int i = 0; i < grantedPermissions.size(); i++) {
+				if (grantedPermissions.get(i).getTitle().equals(permission)) {
+					return true;
+				}
 			}
 		}
-		}
-		return false; 
+		return false;
 	}
+
+	/**
+	 * Saves password and email to preferenceStore to make user able to stay
+	 * logged in.
+	 * 
+	 * @param email
+	 *            Email of user.
+	 * @param pw
+	 *            Password of user.
+	 */
+	public void stayLoggedIn(String email, String pw) {
+		PreferencesUtils.saveStringValue(this.ip + ":" + this.port + "EMAIL", email, false);
+		PreferencesUtils.saveStringValue(this.ip + ":" + this.port + "PW", pw, false);
+	}
+			
 }
