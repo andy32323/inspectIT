@@ -80,6 +80,9 @@
 		<property name="uncaughtExceptionHandler" ref="forkJoinPoolExceptionHandler" />
 	</bean>
 	
+	<!-- Unsafe Services for REST Services -->
+	<bean id="cmrManagementUnsafe" class="info.novatec.inspectit.cmr.service.rest.unsafe.CmrManagementUnsafe"/>	
+	
 	<!-- SHIRO SETTINGS -->
 	<bean id="SecurityInitialization" class="info.novatec.inspectit.cmr.security.SecurityInitialization" />
 	
