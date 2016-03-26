@@ -8,8 +8,21 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class CmrManagementUnsafe implements IUnsafeCmrManagementService {
+/**
+ * Part of the special unsafe access to the CMR services built for the REST services.
+ * 
+ * This class is the center of the unsafe access chain and is responsible for persisting the method names.
+ * 
+ * The re-wiring of the interfaces is necessary, because the REST services do not provide authentication mechanisms.
+ * 
+ * The normal method names are mapped to unsafe methods, if there exists a permission test for the inspectIT client,
+ * so the REST services still have unrestricted access.
+ */
+public class UnsafeCmrManagementService implements IUnsafeCmrManagementService {
 	
+	/**
+	 * Linking the interfaces.
+	 */
 	@Autowired
 	private IUnsafeEntryForCmrManagement entry;
 

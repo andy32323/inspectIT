@@ -6,10 +6,24 @@ import info.novatec.inspectit.communication.data.cmr.CmrStatusData;
 
 import java.util.Collection;
 
+/**
+ * Part of the special unsafe access to the CMR services built for the REST services.
+ */
 public interface IUnsafeEntryForCmrManagement {
-	public void unsafeRestart();
-	public void unsafeShutdown();
+	
+	/**
+	 * Restarting the CMR without a permission check.
+	 */
+	void unsafeRestart();
+	
+	/**
+	 * Shutting down the CMR without a permission check.
+	 */
+	void unsafeShutdown();
 
+	
+	// ---  unrestricted Methods in safe and unsafe interface
+	
 	/**
 	 * Clear whole buffer.
 	 */

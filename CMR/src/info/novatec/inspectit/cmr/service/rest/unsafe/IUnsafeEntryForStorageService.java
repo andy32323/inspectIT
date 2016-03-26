@@ -1,5 +1,9 @@
 package info.novatec.inspectit.cmr.service.rest.unsafe;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import info.novatec.inspectit.communication.DefaultData;
 import info.novatec.inspectit.communication.data.cmr.RecordingData;
 import info.novatec.inspectit.exception.BusinessException;
@@ -12,14 +16,13 @@ import info.novatec.inspectit.storage.processor.AbstractDataProcessor;
 import info.novatec.inspectit.storage.recording.RecordingProperties;
 import info.novatec.inspectit.storage.recording.RecordingState;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Part of the special unsafe access to the CMR services built for the REST services.
+ * 
+ * Documentation copied from {@IStorageService}
  */
-public interface IUnsafeStorageService {
+public interface IUnsafeEntryForStorageService {
+
 	/**
 	 * Creates the new storage on the CMR with information given in {@link StorageData} object and
 	 * opens it immediately, so that writing can start.
@@ -31,7 +34,7 @@ public interface IUnsafeStorageService {
 	 *             creation fails. When storage opening fails.
 	 * @return The newly created storage with proper ID and status information.
 	 */
-	StorageData createAndOpenStorage(StorageData storageData) throws BusinessException;
+	StorageData unsafeCreateAndOpenStorage(StorageData storageData) throws BusinessException;
 
 	/**
 	 * Closes an already open storage. Writing after calling this method will not be possible on the
@@ -43,7 +46,7 @@ public interface IUnsafeStorageService {
 	 * @throws BusinessException
 	 *             When storage that should be closed is used for recording.
 	 */
-	void closeStorage(StorageData storageData) throws BusinessException;
+	void unsafeCloseStorage(StorageData storageData) throws BusinessException;
 
 	/**
 	 * Deletes a storage. Storage can be deleted only if it is not used for recording.
@@ -53,47 +56,15 @@ public interface IUnsafeStorageService {
 	 * @throws BusinessException
 	 *             When storage is does not exists or is used for recording.
 	 */
-	void deleteStorage(StorageData storageData) throws BusinessException;
-
-	/**
-	 * Returns if the storage is opened, and thus if the write to the storage can be executed.
-	 * 
-	 * @param storageData
-	 *            Storage to check.
-	 * @return True if storage is opened, otherwise false.
-	 */
-	boolean isStorageOpen(StorageData storageData);
-
-	/**
-	 * Returns the list of all opened storages.
-	 * 
-	 * @return Returns the list of all opened storages. If no storage is opened, the empty list will
-	 *         be returned.
-	 */
-	List<StorageData> getOpenedStorages();
-
+	void unsafeDeleteStorage(StorageData storageData) throws BusinessException;
+	
 	/**
 	 * Returns the list of all existing storages.
 	 * 
 	 * @return Returns the list of all existing storages. If no storage is existing, the empty list
 	 *         will be returned.
 	 */
-	List<StorageData> getExistingStorages();
-
-	/**
-	 * Returns the list of storages that can be read from.
-	 * 
-	 * @return Returns the list of storages that can be read from.
-	 */
-	List<StorageData> getReadableStorages();
-
-	/**
-	 * Returns the recording state.
-	 * 
-	 * @return Returns the recording state.
-	 * @see RecordingState
-	 */
-	RecordingState getRecordingState();
+	List<StorageData> unsafeGetExistingStorages();
 
 	/**
 	 * Starts or schedules recording on the provided storage. If the recording properties define the
@@ -119,7 +90,7 @@ public interface IUnsafeStorageService {
 	 *             when {@link StorageData} is insufficient for storage creation or when storage
 	 *             creation fails. If storage has to be opened, then when storage opening fails.
 	 */
-	StorageData startOrScheduleRecording(StorageData storageData, RecordingProperties recordingProperties) throws BusinessException;
+	StorageData unsafeStartOrScheduleRecording(StorageData storageData, RecordingProperties recordingProperties) throws BusinessException;
 
 	/**
 	 * Stops recording. The storage that is currently used for recording will be closed.
@@ -127,7 +98,109 @@ public interface IUnsafeStorageService {
 	 * @throws BusinessException
 	 *             If stopping the recording fails.
 	 */
-	void stopRecording() throws BusinessException;
+	void unsafeStopRecording() throws BusinessException;
+
+	/**
+	 * Adds one label to the {@link StorageData}. Note that if overwrite is true, the label of the
+	 * same type will be overwritten if the type is only one per storage data.
+	 * 
+	 * @param storageData
+	 *            {@link StorageData} object.
+	 * @param storageLabel
+	 *            Label.
+	 * @param doOverwrite
+	 *            Should be overwritten if it is one per {@link StorageData}.
+	 * @return Updated storage data.
+	 * @throws BusinessException
+	 *             If gathering the file names fails.
+	 */
+	StorageData unsafeAddLabelToStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel, boolean doOverwrite) throws BusinessException;
+
+	/**
+	 * Adds collection of labels to the {@link StorageData}. Note that if overwrite is true, the
+	 * label of the same type will be overwritten if the type is only one per storage data.
+	 * 
+	 * @param storageData
+	 *            {@link StorageData} object.
+	 * @param storageLabels
+	 *            Labels.
+	 * @param doOverwrite
+	 *            Should be overwritten if it is one per {@link StorageData}.
+	 * @return Updated storage data.
+	 * @throws BusinessException
+	 *             If gathering the file names fails.
+	 */
+	StorageData unsafeAddLabelsToStorage(StorageData storageData, Collection<AbstractStorageLabel<?>> storageLabels, boolean doOverwrite) throws BusinessException;
+	
+	/**
+	 * Removes the label from the {@link StorageData}.
+	 * 
+	 * @param storageData
+	 *            {@link StorageData}
+	 * @param storageLabel
+	 *            Label.
+	 * @return Updated storage data.
+	 * @throws BusinessException
+	 *             If {@link StorageData} information can not be updated on the disk.
+	 */
+	StorageData unsafeRemoveLabelFromStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel) throws BusinessException;
+
+	/**
+	 * Removes the label list from the {@link StorageData}.
+	 * 
+	 * @param storageData
+	 *            {@link StorageData}
+	 * @param storageLabelList
+	 *            List of labels to remove.
+	 * @return Updated storage data.
+	 * @throws BusinessException
+	 *             If {@link StorageData} information can not be updated on the disk.
+	 */
+	StorageData unsafeRemoveLabelsFromStorage(StorageData storageData, List<AbstractStorageLabel<?>> storageLabelList) throws BusinessException;
+	
+	/**
+	 * Updates the data like name and description for a storage.
+	 * 
+	 * @param storageData
+	 *            Storage data object with new values.
+	 * @throws BusinessException
+	 *             If saving of updated data fails.
+	 */
+	void unsafeUpdateStorageData(StorageData storageData) throws BusinessException;
+
+	//--- End of unsafe methods
+	
+	/**
+	 * Returns if the storage is opened, and thus if the write to the storage can be executed.
+	 * 
+	 * @param storageData
+	 *            Storage to check.
+	 * @return True if storage is opened, otherwise false.
+	 */
+	boolean isStorageOpen(StorageData storageData);
+
+	/**
+	 * Returns the list of all opened storages.
+	 * 
+	 * @return Returns the list of all opened storages. If no storage is opened, the empty list will
+	 *         be returned.
+	 */
+	List<StorageData> getOpenedStorages();
+
+	/**
+	 * Returns the list of storages that can be read from.
+	 * 
+	 * @return Returns the list of storages that can be read from.
+	 */
+	List<StorageData> getReadableStorages();
+
+	/**
+	 * Returns the recording state.
+	 * 
+	 * @return Returns the recording state.
+	 * @see RecordingState
+	 */
+	RecordingState getRecordingState();
 
 	/**
 	 * Returns the {@link RecordingData} if the recording is on. Otherwise <code>null</code>.
@@ -271,64 +344,6 @@ public interface IUnsafeStorageService {
 	Map<String, Long> getAgentFilesLocations(StorageData storageData) throws BusinessException;
 
 	/**
-	 * Adds one label to the {@link StorageData}. Note that if overwrite is true, the label of the
-	 * same type will be overwritten if the type is only one per storage data.
-	 * 
-	 * @param storageData
-	 *            {@link StorageData} object.
-	 * @param storageLabel
-	 *            Label.
-	 * @param doOverwrite
-	 *            Should be overwritten if it is one per {@link StorageData}.
-	 * @return Updated storage data.
-	 * @throws BusinessException
-	 *             If gathering the file names fails.
-	 */
-	StorageData addLabelToStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel, boolean doOverwrite) throws BusinessException;
-
-	/**
-	 * Adds collection of labels to the {@link StorageData}. Note that if overwrite is true, the
-	 * label of the same type will be overwritten if the type is only one per storage data.
-	 * 
-	 * @param storageData
-	 *            {@link StorageData} object.
-	 * @param storageLabels
-	 *            Labels.
-	 * @param doOverwrite
-	 *            Should be overwritten if it is one per {@link StorageData}.
-	 * @return Updated storage data.
-	 * @throws BusinessException
-	 *             If gathering the file names fails.
-	 */
-	StorageData addLabelsToStorage(StorageData storageData, Collection<AbstractStorageLabel<?>> storageLabels, boolean doOverwrite) throws BusinessException;
-
-	/**
-	 * Removes the label from the {@link StorageData}.
-	 * 
-	 * @param storageData
-	 *            {@link StorageData}
-	 * @param storageLabel
-	 *            Label.
-	 * @return Updated storage data.
-	 * @throws BusinessException
-	 *             If {@link StorageData} information can not be updated on the disk.
-	 */
-	StorageData removeLabelFromStorage(StorageData storageData, AbstractStorageLabel<?> storageLabel) throws BusinessException;
-
-	/**
-	 * Removes the label list from the {@link StorageData}.
-	 * 
-	 * @param storageData
-	 *            {@link StorageData}
-	 * @param storageLabelList
-	 *            List of labels to remove.
-	 * @return Updated storage data.
-	 * @throws BusinessException
-	 *             If {@link StorageData} information can not be updated on the disk.
-	 */
-	StorageData removeLabelsFromStorage(StorageData storageData, List<AbstractStorageLabel<?>> storageLabelList) throws BusinessException;
-
-	/**
 	 * Returns all labels that are at the moment existing in all storages. Note that if the same
 	 * label exists in two or more storages, only one label will be included in the returned
 	 * collection.
@@ -452,16 +467,6 @@ public interface IUnsafeStorageService {
 	void executeLabelManagementActions(Collection<AbstractLabelManagementAction> managementActions) throws BusinessException;
 
 	/**
-	 * Updates the data like name and description for a storage.
-	 * 
-	 * @param storageData
-	 *            Storage data object with new values.
-	 * @throws BusinessException
-	 *             If saving of updated data fails.
-	 */
-	void updateStorageData(StorageData storageData) throws BusinessException;
-
-	/**
 	 * Returns the amount of writing tasks storage still has to process. Note that this is an
 	 * approximate number.
 	 * 
@@ -535,5 +540,4 @@ public interface IUnsafeStorageService {
 	 *             If storage does not exist.
 	 */
 	String getCachedStorageDataFileLocation(StorageData storageData, int hash) throws BusinessException;
-
 }

@@ -6,6 +6,11 @@ import info.novatec.inspectit.communication.data.cmr.CmrStatusData;
 
 import java.util.Collection;
 
+/**
+ * Part of the special unsafe access to the CMR services built for the REST services.
+ * 
+ * Documentation copied from {@ICmrManagementService}
+ */
 public interface IUnsafeCmrManagementService {
 
 	/**
