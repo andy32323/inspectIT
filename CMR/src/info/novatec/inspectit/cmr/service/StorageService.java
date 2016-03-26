@@ -79,9 +79,6 @@ public class StorageService implements IStorageService, IUnsafeEntryForStorageSe
 	 */
 	@MethodLog
 	public void createStorage(StorageData storageData) throws BusinessException {
-		if (!securityManager.isPermitted("cmrStoragePermission")) {
-			return;
-		} 
 		try {
 			storageManager.createStorage(storageData);
 		} catch (SerializationException e) {
@@ -102,10 +99,6 @@ public class StorageService implements IStorageService, IUnsafeEntryForStorageSe
 	 */
 	@MethodLog
 	public void openStorage(StorageData storageData) throws BusinessException {
-		if (!securityManager.isPermitted("cmrStoragePermission")) {
-			return;
-		}
-		
 		if (!storageManager.isStorageExisting(storageData)) {
 			throw new BusinessException("Open the storage " + storageData + ".", StorageErrorCodeEnum.STORAGE_DOES_NOT_EXIST);
 		}
