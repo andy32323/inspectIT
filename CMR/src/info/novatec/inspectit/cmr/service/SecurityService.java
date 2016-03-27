@@ -142,7 +142,7 @@ public class SecurityService implements ISecurityService {
 	
 	/**
 	 * First Step of the modified login process.
-	 * @param secretKeyBytes symmetricKey
+	 * @param symmetricKey secretKeyBytes 
 	 * @return symmetrically encrypted public key
 	 * @throws PermutationException 
 	 */
