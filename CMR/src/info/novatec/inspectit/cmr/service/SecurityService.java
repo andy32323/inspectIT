@@ -143,7 +143,7 @@ public class SecurityService implements ISecurityService {
 	 * First Step of the modified login process.
 	 * @param symmetricKey secretKeyBytes 
 	 * @return symmetrically encrypted public key
-	 * @throws Throwable 
+	 * @throws Exception Exception
 	 */
 	@Override
 	public byte[] callPublicKey(byte[] symmetricKey) throws Exception {
