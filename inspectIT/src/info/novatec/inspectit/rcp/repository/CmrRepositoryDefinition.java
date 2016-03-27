@@ -639,7 +639,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 			secretKey = Permutation.generateSecretKey();
 			encryptedRandomKey = Permutation.encryptSecretKey(secretKey, publicKey);
 			secondEncryptionStep = Permutation.encryptWithSecretKey(firstEncryptionStep, secretKey);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return false;
 		}
 		boolean authenticated = securityService.authenticate(encryptedRandomKey, secondEncryptionStep, email);

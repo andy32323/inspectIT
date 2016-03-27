@@ -145,7 +145,7 @@ public class EditUserDialog extends TitleAreaDialog {
 			roles.add(role.getTitle());
 		}
 		for (Role role : rolesList) {
-			if (role.getId() == userOld.getRoleId()) {
+			if (role.getId().equals(userOld.getRoleId())) {
 				roles.select(roles.indexOf(role.getTitle()));
 			}
 		}
