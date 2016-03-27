@@ -24,8 +24,9 @@ public interface ISecurityService {
 	 * @param secretKeyBytes symmetricKey
 	 * @return symmetrically encrypted public key
 	 * @throws PermutationException 
+	 * @throws Throwable 
 	 */
-	byte[] callPublicKey(byte[] secretKeyBytes) throws PermutationException;
+	byte[] callPublicKey(byte[] secretKeyBytes) throws Throwable;
 	
 	/**
 	 * Authentication via the CmrSecurityManager.

@@ -52,16 +52,16 @@ public abstract class Permutation {
 	/**
 	 * Generates a random symmetric key.
 	 * @return SecretKey (byte-encoded)
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] generateSecretKey() throws PermutationException {
+	public static byte[] generateSecretKey() throws Throwable {
 		KeyGenerator kg;
 		try {
 			kg = KeyGenerator.getInstance(SYMMETRIC_ALGORITHM);
 			kg.init(SYMMETRIC_KEY_SIZE);
 			return kg.generateKey().getEncoded();
 		} catch (NoSuchAlgorithmException nsaEx) {
-			throw new PermutationException(nsaEx.getMessage());
+			throw new PermutationException(nsaEx.getMessage()).initCause(nsaEx);
 		}
 	}
 	
@@ -70,9 +70,9 @@ public abstract class Permutation {
 	 * @param pk public key from the CMR
 	 * @param secretKey randomly generated symmetric key
 	 * @return PublicKey (byte-encoded)
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] encryptPublicKey(PublicKey pk, byte[] secretKey) throws PermutationException {
+	public static byte[] encryptPublicKey(PublicKey pk, byte[] secretKey) throws Throwable {
 		RSAPublicKey publicKey = (RSAPublicKey) pk;
 		String firstPart = publicKey.getModulus().toString();
 		String secondPart = publicKey.getPublicExponent().toString();
@@ -84,7 +84,7 @@ public abstract class Permutation {
 			byte[] combination = (firstPart + "|" + secondPart).getBytes(STANDART_CHARSET);
 			return c.doFinal(combination);
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 	
@@ -93,9 +93,9 @@ public abstract class Permutation {
 	 * @param publicKeyBytes encoded PublicKey
 	 * @param secretKey encoded SecretKey
 	 * @return byte-encoded PublicKey
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] decodePublicKey(byte[] publicKeyBytes, byte[] secretKey) throws PermutationException {
+	public static byte[] decodePublicKey(byte[] publicKeyBytes, byte[] secretKey) throws Throwable {
 		try {
 			Cipher c = Cipher.getInstance(SYMMETRIC_ALGORITHM);
 			SecretKeySpec sks = new SecretKeySpec(secretKey, SYMMETRIC_ALGORITHM);
@@ -113,7 +113,7 @@ public abstract class Permutation {
 			
 			return KeyFactory.getInstance(ASYMMETRIC_ALGORITHM).generatePublic(spec).getEncoded();
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 	
@@ -122,9 +122,9 @@ public abstract class Permutation {
 	 * @param theHash String
 	 * @param publicKeyBytes byte-encoded PublicKey
 	 * @return encrypted String (byte-encoded)
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] encryptStringWithPublicKey(String theHash, byte[] publicKeyBytes) throws PermutationException {
+	public static byte[] encryptStringWithPublicKey(String theHash, byte[] publicKeyBytes) throws Throwable {
 		Cipher cipher;
 		PublicKey pk;
 		try {
@@ -133,7 +133,7 @@ public abstract class Permutation {
 			cipher.init(Cipher.ENCRYPT_MODE, pk);
 			return cipher.doFinal(theHash.getBytes(STANDART_CHARSET));
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 	
@@ -142,9 +142,9 @@ public abstract class Permutation {
 	 * @param secretKeyBytes byte-encoded SecretKey
 	 * @param publicKeyBytes byte-encoded PublicKey
 	 * @return encrypted byte[] of the SecretKey
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] encryptSecretKey(byte[] secretKeyBytes, byte[] publicKeyBytes) throws PermutationException {
+	public static byte[] encryptSecretKey(byte[] secretKeyBytes, byte[] publicKeyBytes) throws Throwable {
 		Cipher cipher;
 		PublicKey publicKey;
 		try {
@@ -153,7 +153,7 @@ public abstract class Permutation {
 			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 			return cipher.doFinal(secretKeyBytes);
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 	
@@ -162,9 +162,9 @@ public abstract class Permutation {
 	 * @param content the content
 	 * @param secretKeyBytes byte-encoded SecretKey
 	 * @return encrypted byte[]
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] encryptWithSecretKey(byte[] content, byte[] secretKeyBytes) throws PermutationException {
+	public static byte[] encryptWithSecretKey(byte[] content, byte[] secretKeyBytes) throws Throwable {
 		Cipher cipher;
 		SecretKey secretKey;
 		try {
@@ -174,7 +174,7 @@ public abstract class Permutation {
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 			return cipher.doFinal(content);
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 
@@ -183,9 +183,9 @@ public abstract class Permutation {
 	 * @param encryptedSecretKey byte-encoded SecretKey
 	 * @param privateKeyBytes byte-encoded PrivateKey
 	 * @return decoded SecretKey
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static byte[] decodeSecretKeyWithPrivateKey(byte[] encryptedSecretKey, byte[] privateKeyBytes) throws PermutationException {
+	public static byte[] decodeSecretKeyWithPrivateKey(byte[] encryptedSecretKey, byte[] privateKeyBytes) throws Throwable {
 		Cipher cipher;
 		PrivateKey privateKey;
 		try {
@@ -194,7 +194,7 @@ public abstract class Permutation {
 			cipher.init(Cipher.DECRYPT_MODE, privateKey);
 			return cipher.doFinal(encryptedSecretKey);
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 	
@@ -204,9 +204,9 @@ public abstract class Permutation {
 	 * @param secondEncryptionLevel password, which was encrypted two times.
 	 * @param privateKeyBytes PrivateKey of the CMR (byte-encoded)
 	 * @return String representing the password hash.
-	 * @throws PermutationException (Exception wrapper)
+	 * @throws Throwable 
 	 */
-	public static String decryptPassword(byte[] encryptedSecretKey, byte[] secondEncryptionLevel, byte[] privateKeyBytes) throws PermutationException {
+	public static String decryptPassword(byte[] encryptedSecretKey, byte[] secondEncryptionLevel, byte[] privateKeyBytes) throws Throwable {
 		Cipher cipher;
 		PrivateKey privateKey;
 		SecretKey secretKey;
@@ -227,7 +227,7 @@ public abstract class Permutation {
 			return new String(cipher.doFinal(decryptedOnce));
 			
 		} catch (Exception e) {
-			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage());
+			throw new PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e);
 		}
 	}
 
