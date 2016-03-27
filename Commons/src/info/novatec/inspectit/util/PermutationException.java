@@ -20,7 +20,7 @@ public class PermutationException extends Exception {
 	/**
 	 * Constructor.
 	 * 
-	 * @param reason PermutationException(e.getClass().getName() + " - " +  e.getMessage())
+	 * @param reason PermutationException(e.getClass().getName() + " - " +  e.getMessage()).initCause(e)
 	 * 			for good readability.
 	 */
 	public PermutationException(String reason) {

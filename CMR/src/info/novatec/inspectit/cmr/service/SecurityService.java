@@ -30,7 +30,6 @@ import info.novatec.inspectit.communication.data.cmr.Permutation;
 import info.novatec.inspectit.communication.data.cmr.Role;
 import info.novatec.inspectit.communication.data.cmr.User;
 import info.novatec.inspectit.spring.logger.Log;
-import info.novatec.inspectit.util.PermutationException;
 
 /**
  * Provides general security-system operations for client<->cmr interaction.
@@ -110,7 +109,7 @@ public class SecurityService implements ISecurityService {
 		String pw;
 		try {
 			pw = Permutation.decryptPassword(encryptedRandomKey, secondEncryptionLevel, keyPair.getPrivate().getEncoded());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.info(e.getMessage());
 			return false;
 		}
@@ -144,10 +143,10 @@ public class SecurityService implements ISecurityService {
 	 * First Step of the modified login process.
 	 * @param symmetricKey secretKeyBytes 
 	 * @return symmetrically encrypted public key
-	 * @throws PermutationException 
+	 * @throws Throwable 
 	 */
 	@Override
-	public byte[] callPublicKey(byte[] symmetricKey) throws PermutationException {
+	public byte[] callPublicKey(byte[] symmetricKey) throws Throwable {
 		byte[] encryptedPublicKey = Permutation.encryptPublicKey(keyPair.getPublic(), symmetricKey);
 		return encryptedPublicKey;
 	}
