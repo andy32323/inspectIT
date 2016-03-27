@@ -109,7 +109,7 @@ public class SecurityService implements ISecurityService {
 		String pw;
 		try {
 			pw = Permutation.decryptPassword(encryptedRandomKey, secondEncryptionLevel, keyPair.getPrivate().getEncoded());
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			log.info(e.getMessage());
 			return false;
 		}
@@ -146,7 +146,7 @@ public class SecurityService implements ISecurityService {
 	 * @throws Throwable 
 	 */
 	@Override
-	public byte[] callPublicKey(byte[] symmetricKey) throws Throwable {
+	public byte[] callPublicKey(byte[] symmetricKey) throws Exception {
 		byte[] encryptedPublicKey = Permutation.encryptPublicKey(keyPair.getPublic(), symmetricKey);
 		return encryptedPublicKey;
 	}
@@ -272,7 +272,13 @@ public class SecurityService implements ISecurityService {
 		} else if (existingRole == null) {
 			throw new DataIntegrityViolationException("Invalid role id assigned to this user!");
 		} else {
-			String hashedPassword = Permutation.hashString(user.getPassword());
+			String hashedPassword = "";
+			try {
+				hashedPassword = Permutation.hashString(user.getPassword());
+			} catch (NoSuchAlgorithmException e) {
+				log.info("NoSuchAlgorithException: Failed to create password hash. User not created!");
+				return;
+			}
 			user.setPassword(hashedPassword);
 			userDao.saveOrUpdate(user);
 		}
@@ -325,7 +331,13 @@ public class SecurityService implements ISecurityService {
 		userOld.setRoleId(roleID);
 		userOld.setLocked(isLocked);
 		if (passwordChanged) {
-			String hashedPassword = Permutation.hashString(password);
+			String hashedPassword = "";
+			try {
+				hashedPassword = Permutation.hashString(password);
+			} catch (NoSuchAlgorithmException e) {
+				log.info("NoSuchAlgorithException: Failed to create password hash. User attributes no changed!");
+				return;
+			}
 			userOld.setPassword(hashedPassword);
 		}
 		if (!checkDataIntegrity(userOld)) {
@@ -531,11 +543,23 @@ public class SecurityService implements ISecurityService {
 			roleDao.saveOrUpdate(adminRole);
 
 			// Standarduser - has to be changed on first login
-			User admin = new User(Permutation.hashString("admin"), "admin", adminRole.getId(), false);
+			User admin;
+			try {
+				admin = new User(Permutation.hashString("admin"), "admin", adminRole.getId(), false);
+			} catch (NoSuchAlgorithmException e) {
+				log.info("NoSuchAlgorithException: Failed to create password hash. User not added to database!");
+				return;
+			}
 
 			// Guestuser - can be edited to give a user without an account
 			// rights
-			User guest = new User(Permutation.hashString("guest"), "guest", guestRole.getId(), false);
+			User guest;
+			try {
+				guest = new User(Permutation.hashString("guest"), "guest", guestRole.getId(), false);
+			} catch (NoSuchAlgorithmException e) {
+				log.info("NoSuchAlgorithException: Failed to create password hash. User not added to database!");
+				return;
+			}
 
 			// Transfers users to databse.
 			userDao.saveOrUpdate(guest);
